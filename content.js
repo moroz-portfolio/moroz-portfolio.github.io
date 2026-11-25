@@ -317,6 +317,21 @@ window.SITE_CONTENT = {
         "url": "https://vc.ru/cosmicrealty/1463793-keis-kak-my-privlekli-pokupatelei-nedvizhimosti-na-1453-mlrd-dlya-zagorodnogo-zastroishika-v-nizhegorodskoi-oblasti"
       },
       {
+        "type": "case",
+        "title": "В ТОП выдачи Яндекса почти с нуля: как мы прокачали сайт по монтажу оборудования в Казахстане",
+        "url": "https://molinos.ru/portfolio/internet_marketing/cases/seo/v-top-vydachi-yandeksa-pochti-s-nulya-kak-my-prokachali-sayt-po-montazhu-oborudovaniya-v-kazahstane"
+      },
+      {
+        "type": "case",
+        "title": "Как победить сезонность: продвижение легендарного пятизвездочного отеля в Петербурге",
+        "url": "https://molinos.ru/portfolio/internet_marketing/cases/media/kak-pobedit-sezonnost-prodvizhenie-legendarnogo-pyatizvezdochnogo-otelya-v-peterburge"
+      },
+      {
+        "type": "case",
+        "title": "Как работает brandformance: комплексное продвижение бренда KERRANOVA",
+        "url": "https://molinos.ru/portfolio/internet_marketing/cases/media/kak-rabotaet-brandformance-kompleksnoe-prodvizhenie-brenda-kerranova"
+      },
+      {
         "type": "video",
         "title": "Выбираем CRM-систему для недвижимости",
         "url": "https://www.youtube.com/shorts/t2CVEvEHnTs"
