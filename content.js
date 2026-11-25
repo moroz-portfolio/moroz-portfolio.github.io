@@ -244,32 +244,32 @@ window.SITE_CONTENT = {
       {
         "type": "article",
         "title": "Превращаем квартиру в неприступную крепость: как выбрать дверь и сигнализацию",
-        "url": "https://www.novostroy.u/articles/journal/prevrashchaem-kvartiru-v-nepristupnuyu-krepost-kak-vybrat-dver-i-signalizatsiyu/"
+        "url": "https://www.novostroy.su/articles/journal/prevrashchaem-kvartiru-v-nepristupnuyu-krepost-kak-vybrat-dver-i-signalizatsiyu/"
       },
       {
         "type": "article",
         "title": "Экономим во время ремонта — от каких расходов можно отказаться",
-        "url": "https://www.novostroy.ru/articles/journal/ekonomim-vo-vremya-remonta-ot-kakikh-raskhodov-mozhno-legko-otkazatsya/"
+        "url": "https://www.novostroy.su/articles/journal/ekonomim-vo-vremya-remonta-ot-kakikh-raskhodov-mozhno-legko-otkazatsya/"
       },
       {
         "type": "article",
         "title": "Почему в новых домах отключают горячую воду и как это решают застройщики",
-        "url": "https://www.novostroy.ru/articles/urban/planovoe-stradanie-pochemu-v-novykh-domakh-otklyuchayut-goryachuyu-vodu-i-kak-etu-problemu-reshayut-zastroyshchiki/"
+        "url": "https://www.novostroy.su/articles/urban/planovoe-stradanie-pochemu-v-novykh-domakh-otklyuchayut-goryachuyu-vodu-i-kak-etu-problemu-reshayut-zastroyshchiki/"
       },
       {
         "type": "article",
         "title": "Почему раздельный санузел — пережиток прошлого",
-        "url": "https://www.novostroy.ru/articles/journal/pochemu-razdelnyy-sanuzel-eto-perezhitok-proshlogo-kotoromu-net-mesta-v-sovremennom-mire/"
+        "url": "https://www.novostroy.su/articles/journal/pochemu-razdelnyy-sanuzel-eto-perezhitok-proshlogo-kotoromu-net-mesta-v-sovremennom-mire/"
       },
       {
         "type": "article",
         "title": "Вредят ли здоровью ЛЭП, проходящие рядом с домом",
-        "url": "https://www.novostroy.ru/articles/journal/vredyat-li-zdorovyu-lep-prokhodyashchie-ryadom-s-domom/"
+        "url": "https://www.novostroy.su/articles/journal/vredyat-li-zdorovyu-lep-prokhodyashchie-ryadom-s-domom/"
       },
       {
         "type": "article",
         "title": "Документы при покупке квартиры: как подготовиться к любой сделке",
-        "url": "https://www.novostroy.ru/articles/library/dokumenty-pri-pokupke-kvartiry-kak-podgotovitsya-k-lyuboy-sdelke-kakoy-by-slozhnoy-ona-ni-byla/"
+        "url": "https://www.novostroy.su/articles/library/dokumenty-pri-pokupke-kvartiry-kak-podgotovitsya-k-lyuboy-sdelke-kakoy-by-slozhnoy-ona-ni-byla/"
       },
       {
         "type": "video",
