@@ -319,16 +319,29 @@ html[data-theme="dark"] .contact-chip{background:rgba(255,255,255,.04)}
 body.edit .edit-fab{display:inline-flex}
 body.edit.editor-open .edit-fab{display:none}
 
-.editor-panel{
-  position:fixed;top:0;right:0;bottom:0;width:420px;max-width:100vw;z-index:220;
-  background:var(--bg-soft);border-left:1px solid var(--border-strong);
-  box-shadow:-24px 0 60px rgba(0,0,0,.35);
-  display:none;flex-direction:column;
+.ed-bar{
+  position:fixed;left:24px;bottom:24px;z-index:215;display:none;align-items:center;gap:6px;
+  padding:8px 12px;border-radius:99px;background:var(--card);border:1px solid var(--border-strong);
+  box-shadow:var(--shadow);
 }
-body.edit.editor-open .editor-panel{display:grid;grid-template-rows:auto minmax(0,1fr)}
-@media (min-width:1280px){
-  body.edit.editor-open .page-wrap{margin-right:420px;transition:margin .3s ease}
-  body.edit.editor-open .header{right:420px}
+body.edit.editor-open .ed-bar{display:flex}
+.ed-bar-btn{
+  width:34px;height:34px;border-radius:50%;border:1px solid var(--border);background:transparent;
+  color:var(--text);font-size:14px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;
+}
+.ed-bar-btn:hover{border-color:var(--accent);color:var(--accent)}
+.ed-modal{
+  position:fixed;inset:0;z-index:240;display:none;align-items:center;justify-content:center;
+  background:rgba(5,7,12,.62);padding:18px;
+}
+body.ed-modal-open .ed-modal{display:flex}
+.ed-modal-card{
+  width:100%;max-width:560px;max-height:84vh;display:flex;flex-direction:column;overflow:hidden;
+  background:var(--bg-soft);border:1px solid var(--border-strong);border-radius:16px;box-shadow:var(--shadow);
+}
+.ed-modal-head{
+  display:flex;align-items:center;justify-content:space-between;gap:10px;flex:none;
+  padding:12px 16px;border-bottom:1px solid var(--border);font-size:12.5px;color:var(--text-muted);
 }
 .editor-head{
   padding:18px 20px;border-bottom:1px solid var(--border);flex:none;
@@ -346,7 +359,7 @@ body.edit.editor-open .editor-panel{display:grid;grid-template-rows:auto minmax(
 .ed-btn.primary{background:var(--accent-grad);color:#0b0d14;border:none}
 .ed-btn.danger:hover{border-color:#f06c6c;color:#f06c6c}
 .editor-note{font-size:12.3px;color:var(--text-muted);line-height:1.5}
-.editor-body{overflow-y:auto;min-height:0;padding:14px 20px 40px}
+.editor-body{overflow-y:auto;min-height:0;padding:10px 16px 26px}
 .editor-panel details{
   background:var(--card);border:1px solid var(--border);border-radius:14px;
   margin-bottom:12px;overflow:hidden;
@@ -424,7 +437,7 @@ body.inline-on [data-edit]:empty::before{content:"кликните, чтобы �
   font-size:12.5px;line-height:1.45;color:var(--text-muted);box-shadow:var(--shadow);
 }
 body.inline-on .inline-hint{display:block}
-body.inline-on.editor-open .inline-hint{display:none}
+body.inline-on.ed-modal-open .inline-hint{display:none}
 
 /* ---------- 🔐 Окно ввода пароля ---------- */
 .pw-overlay{
@@ -624,21 +637,22 @@ html[data-theme="dark"] .pw-note{background:rgba(255,255,255,.03)}
 
 <!-- ══════════ ВИЗУАЛЬНЫЙ РЕДАКТОР (работает при ?edit=1) ══════════ -->
 <button class="edit-fab" id="edit-fab">✏️ Редактор сайта</button>
-<aside class="editor-panel" id="editor-panel" aria-label="Редактор сайта">
-  <div class="editor-head">
-    <div class="editor-head-row">
-      <span class="editor-title"><span class="dot"></span>Редактор сайта</span>
-      <button class="ed-btn danger" id="ed-reset" title="Вернуть исходное содержимое">↺</button>
-      <button class="ed-btn" id="ed-inline" title="Редактирование кликом по странице">✏️ клик</button>
-      <button class="ed-btn" id="ed-close" title="Закрыть редактор">✕</button>
+<div class="ed-bar" id="ed-bar">
+  <span class="ed-state" id="ed-state">не подключено</span>
+  <button class="ed-bar-btn" id="ed-settings" title="Настройки и структура">⚙</button>
+  <button class="ed-bar-btn" id="ed-inline" title="Правка кликом включена">✏️</button>
+  <button class="ed-bar-btn" id="ed-reset" title="Сбросить черновик">↺</button>
+  <button class="ed-bar-btn" id="ed-close" title="Закрыть редактор">✕</button>
+</div>
+<div class="ed-modal" id="ed-modal">
+  <div class="ed-modal-card">
+    <div class="ed-modal-head">
+      <span>Настройки · тексты правятся кликом на странице</span>
+      <button class="ed-bar-btn" id="ed-modal-close" title="Закрыть">✕</button>
     </div>
-    <div class="editor-head-row">
-      <span class="ed-state" id="ed-state">не подключено</span>
-    </div>
-    <div class="editor-note">Текст правится <b>кликом прямо на странице</b>. Здесь — только настройки и структура. Сохраняется само.</div>
+    <div class="editor-body" id="editor-body"></div>
   </div>
-  <div class="editor-body" id="editor-body"></div>
-</aside>
+</div>
 <div class="ed-saved" id="ed-saved"></div>
 <div class="inline-hint" id="inline-hint">Кликните по любому тексту на странице — можно печатать прямо в нём.<br>Esc — отмена · Ctrl+клик по ссылке — открыть её</div>
 
@@ -1539,14 +1553,11 @@ var saveTimer = null, renderTimer = null;
     setTimeout(() => {
       const b = document.getElementById("editor-body");
       if (!b) return;
-      if (b.children.length && b.offsetHeight < 40){
-        b.style.height = "calc(100vh - 170px)";
+      const modalOpen = document.body.classList.contains("ed-modal-open");
+      if (modalOpen && b.children.length && b.offsetHeight < 40){
+        b.style.height = "calc(84vh - 60px)";
         b.style.overflowY = "auto";
-        try { window.__pErr.push("высота панели была 0 — включена страховка"); } catch(x){}
-        if (!window.__hZero){
-          window.__hZero = 1;
-          alert("Панель: разделов " + b.children.length + ", но высота была нулевая. Включил страховку — разделы должны появиться.");
-        }
+        try { window.__pErr.push("высота настроек была 0 — включена страховка"); } catch(x){}
       }
     }, 120);
     if (!body.children.length){
@@ -2052,6 +2063,10 @@ var saveTimer = null, renderTimer = null;
   /* --- управление панелью --- */
   $("#edit-fab").addEventListener("click", requestEditor);
   $("#ed-close").addEventListener("click", () => document.body.classList.remove("editor-open"));
+  $("#ed-settings").addEventListener("click", () => { document.body.classList.add("ed-modal-open"); buildEditor(); });
+  $("#ed-modal-close").addEventListener("click", () => document.body.classList.remove("ed-modal-open"));
+  $("#ed-modal").addEventListener("click", e => { if (e.target === $("#ed-modal")) document.body.classList.remove("ed-modal-open"); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") document.body.classList.remove("ed-modal-open"); });
 
   /* ---------- РЕДАКТИРОВАНИЕ КЛИКОМ ПО ЛЮБОМУ ТЕКСТУ ---------- */
   var INLINE_ATTR = "data-edit";
