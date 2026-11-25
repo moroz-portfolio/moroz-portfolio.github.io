@@ -1423,6 +1423,10 @@ var saveTimer = null, renderTimer = null;
       setSaveState("сохранено в " + t, "ok");
     } catch(err){
       setSaveState("не сохранено: " + humErr(err), "err");
+      if (!window.__saveErrShown || Date.now() - window.__saveErrShown > 20000){
+        window.__saveErrShown = Date.now();
+        toast("❌ Не сохранилось: " + humErr(err));
+      }
     } finally {
       autoBusy = false;
       if (autoPending){ autoPending = false; autosaveNow(); }
@@ -1581,18 +1585,22 @@ var saveTimer = null, renderTimer = null;
 
       if (cfg.token){
         const row = mk("div", "ed-row");
-        const check = mk("button", "ed-btn", "Проверить связь");
+        const check = mk("button", "ed-btn", "Проверить запись");
         check.addEventListener("click", async () => {
-          check.disabled = true; check.textContent = "⏳";
+          check.disabled = true; check.textContent = "⏳ пробный коммит…";
           try {
             const m = cfg.repo.match(/^([^\/\s]+)\/([^\s]+)$/);
-            if (!m) throw new Error("Не указан репозиторий");
-            const r = await ghApi("GET", "/repos/" + m[1] + "/" + m[2], cfg.token);
-            if (!r.ok) throw ghErr(r);
-            setSaveState("связь есть", "ok");
-            toast("✅ Связь есть: " + (r.data.full_name || cfg.repo));
-          } catch(err){ setSaveState("ошибка связи", "err"); toast("❌ " + humErr(err)); }
-          check.disabled = false; check.textContent = "Проверить связь";
+            if (!m) throw new Error("Не указан репозиторий: " + (cfg.repo || "пусто"));
+            await ghSave(cfg.token, cfg.repo, cfg.branch);
+            syncDraftBase();
+            const t = new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+            setSaveState("запись работает · " + t, "ok");
+            toast("✅ Запись работает: коммит создан");
+          } catch(err){
+            setSaveState("не сохранено: " + humErr(err), "err");
+            toast("❌ " + humErr(err));
+          }
+          check.disabled = false; check.textContent = "Проверить запись";
         });
         const off = mk("button", "ed-btn danger", "Отключить");
         off.addEventListener("click", () => {
