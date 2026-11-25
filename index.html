@@ -1060,6 +1060,22 @@ if (EDIT_MODE) {
 }
 CONFIG.admin = Object.assign({ passwordHash: "", sessionMinutes: 120 }, CONFIG.admin || {});
 
+/* Совместимость со старым контентом и старыми черновиками редактора:
+   раньше портфолио хранилось как список проектов с вложенными материалами.
+   Если в CONFIG ещё «projects» — собираем из них плоский список «works». */
+(function migratePortfolio(){
+  const PF = CONFIG.portfolio;
+  if (!PF || typeof PF !== "object") return;
+  if (!Array.isArray(PF.works)){
+    PF.works = Array.isArray(PF.projects)
+      ? PF.projects.reduce((acc, p) => acc.concat((p.items || []).map(i => ({ type: i.type, title: i.title, url: i.url }))), [])
+      : [];
+  }
+  if (!Array.isArray(PF.filterTypes) || !PF.filterTypes.length){
+    PF.filterTypes = [{ id: "all", label: "Все", color: "#d4915a" }];
+  }
+})();
+
 const $ = (s, p = document) => p.querySelector(s);
 const $$ = (s, p = document) => [...p.querySelectorAll(s)];
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
