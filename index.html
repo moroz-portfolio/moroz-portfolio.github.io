@@ -564,8 +564,8 @@ html[data-theme="dark"] .pw-note{background:rgba(255,255,255,.03)}
     <div class="container">
       <div class="section-head reveal">
         <span class="section-tag">Портфолио</span>
-        <h2>Что и для кого написано</h2>
-        <p>Посты в Telegram, статьи на vc.ru и novostroy.ru, сценарии роликов и служебные документы. Фильтр — по типу материала.</p>
+        <h2>Работы по проектам</h2>
+        <p>Каждый проект раскрывается — внутри ссылки на посты, статьи, видео и другие материалы. Фильтруйте по типу контента.</p>
       </div>
       <div class="filters reveal" id="filters"></div>
       <div class="works reveal" id="works"></div>
@@ -701,12 +701,12 @@ const DEFAULT_CONFIG = {
     show: true,
     badge: "Ищу работу",
     // \n — перенос строки. Часть после \n будет выделена градиентом.
-    title: "Пишу для недвижимости,\nот поста до лендинга",
+    title: "Делаю контент,\nкоторый продаёт",
     titleScale: 1,           // размер главного заголовка: 1 = 100% (регулируется в админке)
     roles: "Копирайтер · контент-маркетолог · SMM",
     tagline: "Гений, плейбой, филантроп и, поговаривают, неплохой копирайтер",
     buttons: [
-      { label: "Резюме на hh.ru", href: "https://spb.hh.ru/resume/f89af725ff0cd395720039ed1f41494a61416f", style: "primary" },
+      { label: "📄 Ссылка на резюме", href: "https://spb.hh.ru/resume/f89af725ff0cd395720039ed1f41494a61416f", style: "primary" },
       { label: "Связаться со мной →", href: "#contact", style: "ghost" },
     ],
     facts: [
@@ -733,8 +733,8 @@ const DEFAULT_CONFIG = {
     items: [
       { num: "10+",   label: "лет в копирайтинге" },
       { num: "1000+", label: "постов и статей" },
-      { num: "10",    label: "SMM-проектов" },
-      { num: "40",    label: "материалов в портфолио" },
+      { num: "10",    label: "разных SMM-проектов" },
+      { num: "5",     label: "кейсов в портфолио" },
     ],
   },
 
@@ -742,7 +742,7 @@ const DEFAULT_CONFIG = {
   services: {
     show: true,
     tag: "Чем я занимаюсь",
-    title: "Услуги",
+    title: "",
     subtitle: "Закрываю контент-задачи проекта под ключ: от стратегии и текстов до сценариев роликов и инструкций для команд.",
     items: [
       { icon: "✍️", title: "Копирайтинг",           text: "Посты для Telegram и VK, продающие тексты, письма, описания объектов недвижимости." },
@@ -1012,11 +1012,11 @@ const DEFAULT_CONFIG = {
   // ───────────────────────────── КОНТАКТЫ ────────────────────────────
   contact: {
     show: true,
-    title: "Расскажите, что нужно написать",
+    title: "Давайте поработаем вместе",
     subtitle: "Готов рассмотреть частичную занятость, но в приоритете фултайм.",
     buttons: [
-      { label: "frytrew@gmail.com", href: "mailto:frytrew@gmail.com", style: "primary" },
-      { label: "+7 (981) 966-87-82", href: "tel:+79819668782", style: "ghost" },
+      { label: "✉️ frytrew@gmail.com", href: "mailto:frytrew@gmail.com", style: "primary" },
+      { label: "📞 +7 (981) 966-87-82", href: "tel:+79819668782", style: "ghost" },
     ],
     links: [
       { label: "Telegram", href: "https://t.me/feeed", icon: "tg" },
@@ -1027,7 +1027,7 @@ const DEFAULT_CONFIG = {
 
   // ────────────────────────────── ФУТЕР ──────────────────────────────
   footer: {
-    copy: "© 2026 Руслан Мороз",
+    copy: "© 2026 Руслан Мороз. Сделано с помощью нейросетей. Да, ими я тоже владею.",
     socials: [
       { label: "Telegram", href: "https://t.me/feeed", icon: "tg" },
       { label: "VK",       href: "https://vk.com/feled", icon: "vk" },

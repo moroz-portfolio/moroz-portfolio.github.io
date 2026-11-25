@@ -34,13 +34,13 @@ window.SITE_CONTENT = {
   "hero": {
     "show": true,
     "badge": "Ищу работу",
-    "title": "Пишу для недвижимости,\nот поста до лендинга",
+    "title": "Делаю контент,\nкоторый продаёт",
     "titleScale": 0.78,
     "roles": "Копирайтер · контент-маркетолог · SMM",
     "tagline": "Гений, плейбой, филантроп и, поговаривают, неплохой копирайтер",
     "buttons": [
       {
-        "label": "Резюме на hh.ru",
+        "label": "📄 Ссылка на резюме",
         "href": "https://spb.hh.ru/resume/f89af725ff0cd395720039ed1f41494a61416f",
         "style": "primary"
       },
@@ -95,18 +95,18 @@ window.SITE_CONTENT = {
       },
       {
         "num": "10",
-        "label": "SMM-проектов"
+        "label": "разных SMM-проектов"
       },
       {
-        "num": "40",
-        "label": "материалов в портфолио"
+        "num": "5",
+        "label": "кейсов в портфолио"
       }
     ]
   },
   "services": {
     "show": true,
     "tag": "Чем я могу быть вам полезен",
-    "title": "Услуги",
+    "title": "",
     "subtitle": "Закрываю контент-задачи проекта: статьи, посты, чат-боты, сценарии и лендинги",
     "items": [
       {
@@ -405,16 +405,16 @@ window.SITE_CONTENT = {
   },
   "contact": {
     "show": true,
-    "title": "Расскажите, что нужно написать",
+    "title": "Давайте поработаем вместе",
     "subtitle": "Готов рассмотреть частичную занятость, но в приоритете фултайм.",
     "buttons": [
       {
-        "label": "frytrew@gmail.com",
+        "label": "✉️ frytrew@gmail.com",
         "href": "mailto:frytrew@gmail.com",
         "style": "primary"
       },
       {
-        "label": "+7 (981) 966-87-82",
+        "label": "📞 +7 (981) 966-87-82",
         "href": "tel:+79819668782",
         "style": "ghost"
       }
@@ -438,7 +438,7 @@ window.SITE_CONTENT = {
     ]
   },
   "footer": {
-    "copy": "© 2026 Руслан Мороз",
+    "copy": "© 2026 Руслан Мороз. Сделано с помощью нейросетей. Да, ими я тоже владею.",
     "socials": [
       {
         "label": "Telegram",
