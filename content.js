@@ -94,7 +94,7 @@ window.SITE_CONTENT = {
         "label": "постов и статей"
       },
       {
-        "num": "10=",
+        "num": "+",
         "label": "разных SMM-проектов"
       },
       {
