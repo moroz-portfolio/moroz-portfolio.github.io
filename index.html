@@ -1619,7 +1619,10 @@ var saveTimer = null, renderTimer = null;
       }
 
       const tok = mk("input"); tok.type = "password"; tok.placeholder = "github_pat_..."; tok.autocomplete = "off";
-      b.appendChild(fieldWrap("Токен GitHub", tok, "github.com → аватар → Settings → Developer settings → Fine-grained tokens → Generate new token. Repository access: только этот репозиторий. Permissions → Contents: Read and write. Expiration удобнее No expiration."));
+      b.appendChild(fieldWrap("Токен GitHub", tok,
+        "Проще всего классический токен: github.com/settings/tokens/new → Note: portfolio-editor → Expiration: No expiration → галочка «repo» → Generate token → скопировать. " +
+        "Если делаете fine-grained: Repository access → Only select repositories → moroz-portfolio/moroz-portfolio.github.io, Permissions → Contents: Read and write. " +
+        "Важно: токен должен быть создан в том аккаунте, которому принадлежит репозиторий."));
       const rep = mk("input"); rep.type = "text"; rep.placeholder = "логин/репозиторий";
       try { rep.value = localStorage.getItem(GH_REPO_KEY) || detectRepo() || ""; } catch(e){ rep.value = detectRepo(); }
       const br = mk("input"); br.type = "text"; br.placeholder = "main";
@@ -1877,7 +1880,11 @@ var saveTimer = null, renderTimer = null;
   }
   function ghErr(res){
     const msg = (res.data && res.data.message) || "";
-    if (res.status === 401 || res.status === 403) return new Error("GitHub не принял токен. Проверьте токен и права Contents → Read and write. " + msg);
+    if (res.status === 401) return new Error("Токен недействителен или истёк — создайте новый.");
+    if (res.status === 403){
+      if (/not accessible/i.test(msg)) return new Error("У токена нет доступа к этому репозиторию или нет права записи. Создайте классический токен с галочкой «repo» (github.com/settings/tokens/new) в том аккаунте, которому принадлежит репозиторий.");
+      return new Error("GitHub отказал в записи (403). Нужно право Contents: Read and write. " + msg);
+    }
     if (res.status === 404) return new Error("Репозиторий или файл не найден / у токена нет доступа. " + msg);
     if (res.status === 409) return new Error("Файл изменился параллельно — нажмите «Сохранить» ещё раз.");
     return new Error("Ошибка GitHub (" + res.status + "). " + msg);
