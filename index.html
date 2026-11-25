@@ -1344,9 +1344,9 @@ render();
 /* ╔════════════════════════════════════════════════════════════════════╗
    ║  ✏️  ВИЗУАЛЬНЫЙ РЕДАКТОР (активен только при ?edit=1)              ║
    ╚════════════════════════════════════════════════════════════════════╝ */
-if (EDIT_MODE) {
-
-  var saveTimer = null, renderTimer = null;
+/* Редактор: весь код на верхнем уровне — никаких блочных областей видимости,
+   иначе Safari не видит помощников панели («Can't find variable: mk»). */
+var saveTimer = null, renderTimer = null;
   function touch(){
     clearTimeout(renderTimer);
     renderTimer = setTimeout(() => { render(); }, 180);
@@ -2205,10 +2205,20 @@ if (EDIT_MODE) {
     }
   });
 
-  document.addEventListener("DOMContentLoaded", () => {
-    requestEditor();
-  });
-}
+document.addEventListener("DOMContentLoaded", () => {
+  if (!EDIT_MODE) return;
+  try { requestEditor(); }
+  catch(err){
+    console.error("Редактор:", err);
+    const b = document.getElementById("editor-body");
+    if (b){
+      const d = document.createElement("div");
+      d.style.cssText = "color:#f06c6c;margin:12px 16px;white-space:pre-wrap;font-size:12px;";
+      d.textContent = "Ошибка запуска редактора: " + ((err && err.message) || err);
+      b.appendChild(d);
+    }
+  }
+});
 </script>
 </body>
 </html>
