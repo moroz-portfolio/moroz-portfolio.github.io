@@ -1029,6 +1029,7 @@ const DEFAULT_CONFIG = {
    ║  ТЕХНИЧЕСКАЯ ЧАСТЬ — МЕНЯТЬ НЕ НУЖНО                               ║
    ╚════════════════════════════════════════════════════════════════════╝ */
 
+console.log("portfolio build 2026-11-25-6 (password modal без внешних переменных)");
 const EDIT_MODE = (() => { try { return new URLSearchParams(location.search).has("edit"); } catch(e){ return false; } })();
 const DRAFT_KEY = "portfolioDraft_v1";
 
@@ -1821,93 +1822,117 @@ if (EDIT_MODE) {
   }
   function clearFails(){ try { localStorage.removeItem(FAILS_KEY); } catch(e){} }
 
-  const pwOverlay = $("#pw-overlay"), pwInput = $("#pw-input"), pwInput2 = $("#pw-input2"),
-        pwErr = $("#pw-error"), pwTitle = $("#pw-title"), pwText = $("#pw-text"),
-        pwRow2 = $("#pw-row2"), pwStrength = $("#pw-strength"), pwNote = $("#pw-note"),
-        pwSubmit = $("#pw-submit");
   let pwMode = "unlock";
 
-  function pwShowErr(msg){ pwErr.textContent = msg || ""; }
+  /* Все элементы окна пароля ищем на месте — без внешних переменных,
+     чтобы панель не падала ни в одном браузере (Safari, старые версии). */
+  function pwEl(id){ return document.getElementById(id); }
+  function pwShowErr(msg){ const el = pwEl("pw-error"); if (el) el.textContent = msg || ""; }
 
   function openPwModal(){
-    pwMode = CONFIG.admin.passwordHash ? "unlock" : "setup";
+    pwMode = (CONFIG.admin && CONFIG.admin.passwordHash) ? "unlock" : "setup";
+    const title = pwEl("pw-title"), text = pwEl("pw-text"), row2 = pwEl("pw-row2"),
+          strength = pwEl("pw-strength"), note = pwEl("pw-note"), submit = pwEl("pw-submit"),
+          input = pwEl("pw-input"), input2 = pwEl("pw-input2"), overlay = pwEl("pw-overlay");
+    if (!overlay || !input) return;
     if (pwMode === "setup"){
-      pwTitle.textContent = "Придумайте пароль";
-      pwText.textContent = "Пароль ещё не задан. Он защитит редактор и будет храниться только в виде хеша.";
-      pwRow2.style.display = ""; pwStrength.style.display = ""; pwNote.style.display = "";
-      pwSubmit.textContent = "🔐 Задать пароль и войти";
-      pwInput.placeholder = "Новый пароль (мин. 4 символа)";
-      pwInput.autocomplete = "new-password";
+      if (title) title.textContent = "Придумайте пароль";
+      if (text) text.textContent = "Пароль ещё не задан. Он защитит редактор и будет храниться только в виде хеша.";
+      if (row2) row2.style.display = "";
+      if (strength) strength.style.display = "";
+      if (note) note.style.display = "";
+      if (submit) submit.textContent = "🔐 Задать пароль и войти";
+      input.placeholder = "Новый пароль (мин. 4 символа)";
+      input.autocomplete = "new-password";
     } else {
-      pwTitle.textContent = "Введите пароль";
-      pwText.textContent = "Редактор сайта защищён паролем.";
-      pwRow2.style.display = "none"; pwStrength.style.display = "none"; pwNote.style.display = "none";
-      pwSubmit.textContent = "Войти в редактор";
-      pwInput.placeholder = "Пароль";
-      pwInput.autocomplete = "current-password";
+      if (title) title.textContent = "Введите пароль";
+      if (text) text.textContent = "Редактор сайта защищён паролем.";
+      if (row2) row2.style.display = "none";
+      if (strength) strength.style.display = "none";
+      if (note) note.style.display = "none";
+      if (submit) submit.textContent = "Войти в редактор";
+      input.placeholder = "Пароль";
+      input.autocomplete = "current-password";
     }
-    pwInput.value = ""; pwInput2.value = ""; pwShowErr("");
-    pwOverlay.classList.add("show");
-    setTimeout(() => pwInput.focus(), 80);
+    input.value = "";
+    if (input2) input2.value = "";
+    pwShowErr("");
+    overlay.classList.add("show");
+    setTimeout(() => input.focus(), 80);
   }
-  function closePw(){ pwOverlay.classList.remove("show"); }
+  function closePw(){ const o = pwEl("pw-overlay"); if (o) o.classList.remove("show"); }
   function openPanel(){ document.body.classList.add("editor-open"); buildEditor(); }
-  function requestEditor(){ isUnlocked() ? openPanel() : openPwModal(); }
+  function requestEditor(){
+    try { isUnlocked() ? openPanel() : openPwModal(); }
+    catch(err){ console.error("editor:", err); try { openPwModal(); } catch(e2){ console.error(e2); } }
+  }
   function exitEdit(){ location.replace(location.pathname); }
 
   function updateStrength(){
-    const pw = pwInput.value;
+    const strength = pwEl("pw-strength"), input = pwEl("pw-input");
+    if (!strength || !input) return;
+    const pw = input.value;
     let score = 0;
     if (pw.length >= 4) score++;
     if (pw.length >= 8) score++;
     if (/[A-ZА-Я]/.test(pw) && /[a-zа-я]/.test(pw)) score++;
     if (/[0-9]/.test(pw) || /[^A-Za-zА-Яа-я0-9]/.test(pw)) score++;
-    const bars = $("i", pwStrength);
     const cls = score <= 1 ? "on-weak" : score <= 2 ? "on-mid" : "on-strong";
-    bars.forEach((b, i) => { b.className = i < score ? cls : ""; });
+    Array.prototype.forEach.call(strength.querySelectorAll("i"), (b, idx) => { b.className = idx < score ? cls : ""; });
   }
 
-  pwSubmit.addEventListener("click", async () => {
-    const f = failInfo();
-    if (f.until > Date.now()){
-      pwShowErr(`Слишком много попыток. Повторите через ${Math.ceil((f.until - Date.now()) / 1000)} с`);
-      return;
-    }
-    const pw = pwInput.value;
-    if (pwMode === "setup"){
-      if (pw.length < 4){ pwShowErr("Минимум 4 символа"); return; }
-      if (pw !== pwInput2.value){ pwShowErr("Пароли не совпадают"); return; }
-      CONFIG.admin.passwordHash = await hashPassword(pw);
-      clearFails(); markUnlocked(); touch(); closePw(); openPanel();
-      toast("🔐 Пароль задан! Скачайте content.js, чтобы сохранить его");
-    } else {
-      if (await verifyPassword(pw)){
-        clearFails(); markUnlocked(); closePw(); openPanel();
-      } else {
-        registerFail();
-        pwShowErr("Неверный пароль");
-        pwInput.value = "";
-        pwInput.classList.remove("shake");
-        void pwInput.offsetWidth;
-        pwInput.classList.add("shake");
-        pwInput.focus();
+  (function bindPasswordUi(){
+    const submit = pwEl("pw-submit"), input = pwEl("pw-input"), input2 = pwEl("pw-input2"),
+          eye = pwEl("pw-eye"), back = pwEl("pw-back");
+
+    if (submit) submit.addEventListener("click", async () => {
+      const f = failInfo();
+      if (f.until > Date.now()){
+        pwShowErr("Слишком много попыток. Повторите через " + Math.ceil((f.until - Date.now()) / 1000) + " с");
+        return;
       }
-    }
-  });
-  pwInput.addEventListener("input", () => { if (pwMode === "setup") updateStrength(); pwShowErr(""); });
-  pwInput.addEventListener("keydown", e => { if (e.key === "Enter") pwSubmit.click(); });
-  pwInput2.addEventListener("keydown", e => { if (e.key === "Enter") pwSubmit.click(); });
-  $("#pw-eye").addEventListener("click", () => {
-    const show = pwInput.type === "password";
-    pwInput.type = show ? "text" : "password";
-    pwInput2.type = show ? "text" : "password";
-    $("#pw-eye").textContent = show ? "🙈" : "👁";
-    pwInput.focus();
-  });
-  $("#pw-back").addEventListener("click", exitEdit);
-  document.addEventListener("keydown", e => {
-    if (e.key === "Escape" && pwOverlay.classList.contains("show")) exitEdit();
-  });
+      const el = pwEl("pw-input"), el2 = pwEl("pw-input2");
+      const pw = el ? el.value : "";
+      if (pwMode === "setup"){
+        if (pw.length < 4){ pwShowErr("Минимум 4 символа"); return; }
+        if (!el2 || pw !== el2.value){ pwShowErr("Пароли не совпадают"); return; }
+        CONFIG.admin.passwordHash = await hashPassword(pw);
+        clearFails(); markUnlocked(); touch(); closePw(); openPanel();
+        toast("🔐 Пароль задан! Скачайте content.js, чтобы сохранить его");
+      } else {
+        if (await verifyPassword(pw)){
+          clearFails(); markUnlocked(); closePw(); openPanel();
+        } else {
+          registerFail();
+          pwShowErr("Неверный пароль");
+          if (el){
+            el.value = "";
+            el.classList.remove("shake");
+            void el.offsetWidth;
+            el.classList.add("shake");
+            el.focus();
+          }
+        }
+      }
+    });
+    if (input) input.addEventListener("input", () => { if (pwMode === "setup") updateStrength(); pwShowErr(""); });
+    if (input) input.addEventListener("keydown", e => { if (e.key === "Enter" && submit) submit.click(); });
+    if (input2) input2.addEventListener("keydown", e => { if (e.key === "Enter" && submit) submit.click(); });
+    if (eye) eye.addEventListener("click", () => {
+      const el = pwEl("pw-input"), el2 = pwEl("pw-input2");
+      if (!el) return;
+      const show = el.type === "password";
+      el.type = show ? "text" : "password";
+      if (el2) el2.type = el.type;
+      eye.textContent = show ? "🙈" : "👁";
+      el.focus();
+    });
+    if (back) back.addEventListener("click", exitEdit);
+    document.addEventListener("keydown", e => {
+      const o = pwEl("pw-overlay");
+      if (e.key === "Escape" && o && o.classList.contains("show")) exitEdit();
+    });
+  })();
 
   /* --- управление панелью --- */
   $("#edit-fab").addEventListener("click", requestEditor);
