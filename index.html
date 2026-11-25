@@ -1346,7 +1346,7 @@ render();
    ╚════════════════════════════════════════════════════════════════════╝ */
 if (EDIT_MODE) {
 
-  let saveTimer = null, renderTimer = null;
+  var saveTimer = null, renderTimer = null;
   function touch(){
     clearTimeout(renderTimer);
     renderTimer = setTimeout(() => { render(); }, 180);
@@ -1369,7 +1369,7 @@ if (EDIT_MODE) {
   }
 
   /* ---------- АВТОСОХРАНЕНИЕ НА САЙТ ---------- */
-  let autoTimer = null, autoBusy = false, autoPending = false;
+  var autoTimer = null, autoBusy = false, autoPending = false;
   function ghCfg(){
     let token = "", repo = "", branch = "main";
     try {
@@ -1417,7 +1417,7 @@ if (EDIT_MODE) {
   }
 
   /* --- хелперы построения форм --- */
-  const mk = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
+  var mk = (tag, cls, html) => { const e = document.createElement(tag); if (cls) e.className = cls; if (html != null) e.innerHTML = html; return e; };
 
   function fieldWrap(label, inputEl, hint){
     const f = mk("div", "efield");
@@ -1519,6 +1519,7 @@ if (EDIT_MODE) {
       + "\n#editor-body: " + (body ? ("есть, детей " + body.children.length) : "НЕ НАЙДЕН")
       + "\nразделы: " + secs
       + "\nошибки: " + ((window.__pErr && window.__pErr.length) ? window.__pErr.join(" | ") : "нет")
+      + "\nmk: " + (typeof mk) + " / edSection: " + (typeof edSection)
       + "\nCONFIG.portfolio.works: " + ((CONFIG.portfolio && CONFIG.portfolio.works && CONFIG.portfolio.works.length) || 0);
   }
   window.__diag = diagText;
@@ -1900,7 +1901,7 @@ if (EDIT_MODE) {
   }
 
   /* --- ☁️ прямое сохранение на сайт через GitHub API --- */
-  const GH_TOKEN_KEY = "ghToken_v1", GH_REPO_KEY = "ghRepo_v1", GH_BRANCH_KEY = "ghBranch_v1";
+  var GH_TOKEN_KEY = "ghToken_v1", GH_REPO_KEY = "ghRepo_v1", GH_BRANCH_KEY = "ghBranch_v1";
 
   function detectRepo(){
     try {
@@ -1959,8 +1960,8 @@ if (EDIT_MODE) {
   }
 
   /* --- 🔐 защита паролем --- */
-  const FAILS_KEY = "adminFails_v1";
-  const UNLOCK_KEY = "adminUnlockedAt_v1";
+  var FAILS_KEY = "adminFails_v1";
+  var UNLOCK_KEY = "adminUnlockedAt_v1";
 
   async function hashPassword(pw){
     const salted = "moroz-portfolio-v1::" + pw;
@@ -2000,7 +2001,7 @@ if (EDIT_MODE) {
   }
   function clearFails(){ try { localStorage.removeItem(FAILS_KEY); } catch(e){} }
 
-  let pwMode = "unlock";
+  var pwMode = "unlock";
 
   /* Все элементы окна пароля ищем на месте — без внешних переменных,
      чтобы панель не падала ни в одном браузере (Safari, старые версии). */
@@ -2130,7 +2131,7 @@ if (EDIT_MODE) {
   $("#ed-close").addEventListener("click", () => document.body.classList.remove("editor-open"));
 
   /* ---------- РЕДАКТИРОВАНИЕ КЛИКОМ ПО ЛЮБОМУ ТЕКСТУ ---------- */
-  const INLINE_ATTR = "data-edit";
+  var INLINE_ATTR = "data-edit";
   function inlineEnabled(){ return document.body.classList.contains("inline-on"); }
   function inlineOn(on){
     document.body.classList.toggle("inline-on", !!on);
