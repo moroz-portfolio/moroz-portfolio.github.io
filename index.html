@@ -788,11 +788,11 @@ const DEFAULT_CONFIG = {
   // ──────────────────────────── ПОРТФОЛИО ────────────────────────────
   // works — плоский список материалов: { type, title, url },
   // type совпадает с id из filterTypes (all не используется).
+  // ──────────────────────────── ПОРТФОЛИО ────────────────────────────
+  // works — плоский список материалов: { type, title, url },
+  // type совпадает с id из filterTypes (all не используется).
   portfolio:   {
     "show": true,
-    "tag": "Портфолио",
-    "title": "Список публикаций",
-    "subtitle": "Работы разных форматов — фильтр по типу материала.",
     "filterTypes": [
       {
         "id": "all",
@@ -810,14 +810,19 @@ const DEFAULT_CONFIG = {
         "color": "#9aa88f"
       },
       {
-        "id": "video",
+        "id": "case",
         "label": "Кейсы",
         "color": "#b8724f"
       },
       {
+        "id": "video",
+        "label": "Сценарии",
+        "color": "#8d8578"
+      },
+      {
         "id": "doc",
         "label": "Прочее",
-        "color": "#8d8578"
+        "color": "#7f8b93"
       }
     ],
     "works": [
@@ -872,24 +877,49 @@ const DEFAULT_CONFIG = {
         "url": "https://t.me/telejka_novostroyki/572"
       },
       {
-        "type": "article",
-        "title": "Кейс: привлечение клиентов на покупку зарубежной недвижимости через YouTube",
-        "url": "https://vc.ru/cosmicrealty/1119627-keis-privlechenie-klientov-na-pokupku-zarubezhnoi-nedvizhimosti-s-pomoshyu-youtube-kanala"
+        "type": "post",
+        "title": "Приглашение на вебинар",
+        "url": "https://t.me/cosmicrealty/347"
+      },
+      {
+        "type": "post",
+        "title": "Приглашение на экскурсию в шоу-дом",
+        "url": "https://t.me/shodnyacountryclub/157"
+      },
+      {
+        "type": "post",
+        "title": "5 причин побывать на экскурсии в «Хвойном» квартале",
+        "url": "https://t.me/hvoynykvartal/157"
+      },
+      {
+        "type": "post",
+        "title": "Планы по строительству «Хвойного»",
+        "url": "https://t.me/hvoynykvartal/195"
+      },
+      {
+        "type": "post",
+        "title": "Почему инвестировать в Саратовскую область выгодно",
+        "url": "https://t.me/hvoynykvartal/167"
+      },
+      {
+        "type": "post",
+        "title": "Подборка квартир для IT-специалистов",
+        "url": "https://t.me/key_estate/2137"
+      },
+      {
+        "type": "post",
+        "title": "Где живут наши менеджеры?",
+        "url": "https://t.me/key_estate/2111"
+      },
+      {
+        "type": "post",
+        "title": "Бесплатный подбор квартиры",
+        "url": "https://t.me/novostroyki_quantum/7"
       },
       {
         "type": "article",
         "title": "10 правил рабочей воронки продаж в недвижимости",
         "url": "https://vc.ru/marketing/1227135-10-pravil-rabochei-voronki-prodazh-v-nedvizhimosti"
-      },
-      {
-        "type": "article",
-        "title": "Кейс: горячие лиды по 1300 ₽ на коммерческую недвижимость в Москве",
-        "url": "https://vc.ru/marketing/1237751-keis-kak-poluchat-goryachie-lidy-po-1300-na-kommercheskuyu-nedvizhimost-v-moskve"
-      },
-      {
-        "type": "article",
-        "title": "Кейс: покупатели недвижимости на 1,453 млрд ₽ для загородного застройщика",
-        "url": "https://vc.ru/cosmicrealty/1463793-keis-kak-my-privlekli-pokupatelei-nedvizhimosti-na-1453-mlrd-dlya-zagorodnogo-zastroishika-v-nizhegorodskoi-oblasti"
       },
       {
         "type": "article",
@@ -920,6 +950,21 @@ const DEFAULT_CONFIG = {
         "type": "article",
         "title": "Документы при покупке квартиры: как подготовиться к любой сделке",
         "url": "https://www.novostroy.ru/articles/library/dokumenty-pri-pokupke-kvartiry-kak-podgotovitsya-k-lyuboy-sdelke-kakoy-by-slozhnoy-ona-ni-byla/"
+      },
+      {
+        "type": "case",
+        "title": "Кейс: привлечение клиентов на покупку зарубежной недвижимости через YouTube",
+        "url": "https://vc.ru/cosmicrealty/1119627-keis-privlechenie-klientov-na-pokupku-zarubezhnoi-nedvizhimosti-s-pomoshyu-youtube-kanala"
+      },
+      {
+        "type": "case",
+        "title": "Кейс: горячие лиды по 1300 ₽ на коммерческую недвижимость в Москве",
+        "url": "https://vc.ru/marketing/1237751-keis-kak-poluchat-goryachie-lidy-po-1300-na-kommercheskuyu-nedvizhimost-v-moskve"
+      },
+      {
+        "type": "case",
+        "title": "Кейс: покупатели недвижимости на 1,453 млрд ₽ для загородного застройщика",
+        "url": "https://vc.ru/cosmicrealty/1463793-keis-kak-my-privlekli-pokupatelei-nedvizhimosti-na-1453-mlrd-dlya-zagorodnogo-zastroishika-v-nizhegorodskoi-oblasti"
       },
       {
         "type": "video",
@@ -980,48 +1025,11 @@ const DEFAULT_CONFIG = {
         "type": "doc",
         "title": "Скрипт для отдела продаж",
         "url": "https://docs.google.com/document/d/11HicRjikr8z1gK2TDtiaTzAUaREXNqEYFnYx-V1FdjI/edit"
-      },
-      {
-        "type": "doc",
-        "title": "Приглашение на вебинар",
-        "url": "https://t.me/cosmicrealty/347"
-      },
-      {
-        "type": "doc",
-        "title": "Приглашение на экскурсию в шоу-дом",
-        "url": "https://t.me/shodnyacountryclub/157"
-      },
-      {
-        "type": "doc",
-        "title": "5 причин побывать на экскурсии в «Хвойном» квартале",
-        "url": "https://t.me/hvoynykvartal/157"
-      },
-      {
-        "type": "doc",
-        "title": "Планы по строительству «Хвойного»",
-        "url": "https://t.me/hvoynykvartal/195"
-      },
-      {
-        "type": "doc",
-        "title": "Почему инвестировать в Саратовскую область выгодно",
-        "url": "https://t.me/hvoynykvartal/167"
-      },
-      {
-        "type": "doc",
-        "title": "Подборка квартир для IT-специалистов",
-        "url": "https://t.me/key_estate/2137"
-      },
-      {
-        "type": "doc",
-        "title": "Где живут наши менеджеры?",
-        "url": "https://t.me/key_estate/2111"
-      },
-      {
-        "type": "doc",
-        "title": "Бесплатный подбор квартиры",
-        "url": "https://t.me/novostroyki_quantum/7"
       }
-    ]
+    ],
+    "tag": "Портфолио",
+    "title": "Список публикаций",
+    "subtitle": "Работы разных форматов — фильтр по типу материала."
   },
 
   // ────────────────────────────── О СЕБЕ ─────────────────────────────
