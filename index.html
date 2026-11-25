@@ -28,7 +28,7 @@
   --hero-title-scale: 1;    /* масштаб главного заголовка (регулируется в админке) */
   --accent: #d4915a;
   --accent-2: #b06a4f;
-  --accent-grad: var(--accent);   /* сплошная заливка акцентом, без градиентов */
+  --accent-grad: linear-gradient(135deg, #d4915a 0%, #b06a4f 100%);
 
   --bg: #14120f;
   --bg-soft: #1a1713;
@@ -122,11 +122,12 @@ section{padding:88px 0;position:relative}
 .hero{min-height:100svh;display:flex;align-items:center;padding:130px 0 80px}
 .hero-grid{display:grid;grid-template-columns:1.12fr .88fr;gap:56px;align-items:center;width:100%}
 .hero-badge{
-  display:inline-flex;align-items:center;gap:9px;
-  font-size:calc(12.5px * var(--fs));font-weight:700;
-  letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);
-  margin-bottom:22px;
+  display:inline-flex;align-items:center;gap:8px;
+  padding:7px 16px;border-radius:99px;font-size:calc(13.5px * var(--fs));font-weight:700;
+  background:var(--card);border:1px solid var(--border);color:var(--text-muted);
+  margin-bottom:24px;
 }
+.hero-badge .pulse{width:8px;height:8px;border-radius:50%;background:#3ddc84;flex:none}
 .hero-badge .pulse{width:6px;height:6px;border-radius:50%;background:var(--accent);position:relative}
 .hero h1{
   font-size:calc(clamp(34px,4.8vw,56px) * var(--fs) * var(--hero-title-scale));line-height:1.1;letter-spacing:-.02em;
@@ -138,19 +139,24 @@ section{padding:88px 0;position:relative}
 .hero-cta{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:34px}
 .hero-facts{display:flex;flex-direction:column;align-items:flex-start;gap:8px}
 .fact{
-  display:inline-flex;align-items:center;gap:10px;
-  font-size:calc(14px * var(--fs));color:var(--text-muted);
+  display:inline-flex;align-items:center;gap:8px;
+  padding:9px 15px;border-radius:var(--radius-sm);font-size:calc(13.5px * var(--fs));font-weight:600;
+  background:var(--card);border:1px solid var(--border);color:var(--text-muted);
 }
-.fact::before{content:"—";color:var(--accent)}
 
 /* ---------- Фото в Hero ---------- */
 .hero-photo{position:relative;display:flex;justify-content:center}
+.photo-blob{
+  position:absolute;inset:-8% -6%;border-radius:50%;
+  background:var(--accent-grad);filter:blur(90px);opacity:.22;z-index:0;
+}
 .photo-frame{
   position:relative;z-index:1;width:100%;max-width:400px;aspect-ratio:4/5;
-  border-radius:2px;background:var(--card);border:1px solid var(--border-strong);padding:10px;
+  border-radius:30px;background:var(--accent-grad);padding:4px;
+  box-shadow:var(--shadow);
 }
 .photo-inner{
-  position:relative;width:100%;height:100%;border-radius:0;overflow:hidden;
+  position:relative;width:100%;height:100%;border-radius:26px;overflow:hidden;
   background:var(--card);
 }
 .photo-inner img{
@@ -159,63 +165,73 @@ section{padding:88px 0;position:relative}
 .photo-mono{
   position:absolute;inset:0;z-index:1;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;
-  background:var(--card-hover);
+  background:
+    radial-gradient(rgba(255,255,255,.055) 1.2px, transparent 1.2px) 0 0/20px 20px,
+    linear-gradient(160deg, color-mix(in srgb, var(--accent) 30%, var(--card)), var(--card) 70%);
 }
 .photo-mono .mono-letters{
-  font-family:var(--font-display);
-  font-size:clamp(64px,9vw,104px);font-weight:700;letter-spacing:-.02em;line-height:1;
-  color:var(--accent);
+  font-size:clamp(64px,9vw,104px);font-weight:800;letter-spacing:-.03em;line-height:1;
+  background:var(--accent-grad);-webkit-background-clip:text;background-clip:text;color:transparent;
 }
 .photo-mono .mono-hint{
   font-size:13px;font-weight:600;color:var(--text-muted);
-  padding:7px 14px;border:1px solid var(--border);display:none;text-align:center;
+  padding:7px 14px;border-radius:99px;background:color-mix(in srgb, var(--bg) 60%, transparent);
+  border:1px solid var(--border);display:none;text-align:center;
 }
 body.edit .photo-mono .mono-hint{display:block}
 .photo-chip{
   position:absolute;z-index:3;
   display:inline-flex;align-items:center;gap:8px;
-  padding:8px 12px;border-radius:3px;font-size:13px;font-weight:600;
-  background:var(--bg);border:1px solid var(--border-strong);color:var(--text-muted);
+  padding:10px 16px;border-radius:99px;font-size:13.5px;font-weight:700;
+  background:var(--card);border:1px solid var(--border-strong);color:var(--text);
+  box-shadow:0 12px 30px rgba(0,0,0,.28);backdrop-filter:blur(8px);
+  animation:float 5s ease-in-out infinite;
 }
 .photo-chip.pos-tl{top:22px;left:-22px}
 .photo-chip.pos-tr{top:22px;right:-22px}
 .photo-chip.pos-bl{bottom:26px;left:-22px}
-.photo-chip.pos-br{bottom:26px;right:-22px}
+.photo-chip.pos-br{bottom:26px;right:-22px;animation-delay:2.5s}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
 
 /* ---------- Общие заголовки секций ---------- */
 .section-head{margin-bottom:44px}
 .section-tag{
-  display:block;font-size:12.5px;font-weight:700;
-  letter-spacing:.16em;text-transform:uppercase;color:var(--accent);
-  margin-bottom:14px;
+  display:inline-block;padding:6px 14px;border-radius:99px;font-size:12.5px;font-weight:800;
+  letter-spacing:.08em;text-transform:uppercase;color:var(--accent);
+  background:color-mix(in srgb, var(--accent) 12%, transparent);margin-bottom:16px;
 }
-.section-head h2{font-size:calc(clamp(26px,3.6vw,38px) * var(--fs))}
-.section-head p{color:var(--text-muted);margin-top:12px;max-width:640px;font-size:calc(16px * var(--fs))}
+.section-head h2{font-size:calc(clamp(28px,4vw,42px) * var(--fs))}
+.section-head p{color:var(--text-muted);margin-top:12px;max-width:640px;font-size:calc(16.5px * var(--fs))}
 
 /* ---------- Цифры ---------- */
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:24px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
 .stat{
-  border-top:1px solid var(--border-strong);
-  padding:18px 0 0;
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:28px 24px;text-align:center;transition:.25s;
 }
-.stat-num{
-  font-family:var(--font-display);
-  font-size:calc(clamp(28px,3.2vw,38px) * var(--fs));font-weight:700;letter-spacing:-.01em;color:var(--accent);
-}
-.stat-label{color:var(--text-muted);font-size:calc(14px * var(--fs));margin-top:4px}
+.stat:hover{transform:translateY(-4px);border-color:var(--border-strong)}
+.stat-num{font-size:calc(clamp(30px,3.6vw,42px) * var(--fs));font-weight:800;letter-spacing:-.02em;background:var(--accent-grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.stat-label{color:var(--text-muted);font-size:calc(14px * var(--fs));font-weight:600;margin-top:6px}
 
 /* ---------- Услуги ---------- */
-.services{display:grid;grid-template-columns:1fr 1fr;gap:0 44px}
+.services{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
 .service{
-  border-top:1px solid var(--border);
-  padding:24px 0;
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:30px 26px;transition:.25s;position:relative;overflow:hidden;
 }
+.service::before{
+  content:"";position:absolute;top:0;left:0;right:0;height:3px;
+  background:var(--accent-grad);opacity:0;transition:.25s;
+}
+.service:hover{transform:translateY(-5px);border-color:var(--border-strong);box-shadow:var(--shadow)}
+.service:hover::before{opacity:1}
 .service-icon{
-  font-family:var(--font-display);font-size:13px;font-weight:700;letter-spacing:.1em;
-  color:var(--accent);margin-bottom:8px;
+  width:52px;height:52px;border-radius:14px;display:flex;align-items:center;justify-content:center;
+  background:color-mix(in srgb, var(--accent) 14%, transparent);
+  font-size:24px;margin-bottom:18px;
 }
-.service h3{font-size:calc(18px * var(--fs));margin-bottom:8px}
-.service p{color:var(--text-muted);font-size:calc(14.6px * var(--fs))}
+.service h3{font-size:calc(18.5px * var(--fs));font-weight:800;margin-bottom:10px;letter-spacing:-.01em}
+.service p{color:var(--text-muted);font-size:calc(14.8px * var(--fs))}
 
 /* ---------- Портфолио ---------- */
 .filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:26px}
@@ -245,15 +261,17 @@ body.edit .photo-mono .mono-hint{display:block}
 .about-text p{color:var(--text-muted);font-size:calc(16.2px * var(--fs));margin-bottom:16px}
 .about-text p strong{color:var(--text)}
 .about-card{
-  border-top:1px solid var(--border-strong);
-  padding:20px 0 0;position:sticky;top:96px;
+  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
+  padding:30px;position:sticky;top:96px;
 }
-.about-card h3{font-size:calc(17px * var(--fs));margin-bottom:16px}
-.skill-tags{display:flex;flex-wrap:wrap;gap:8px}
-.skill-tag{
-  padding:6px 11px;border:1px solid var(--border);border-radius:3px;
-  font-size:calc(13.4px * var(--fs));color:var(--text-muted);
-}
+.about-card h3{font-size:calc(17px * var(--fs));font-weight:800;margin-bottom:18px}
+.skill-row{margin-bottom:16px}
+.skill-row:last-child{margin-bottom:0}
+.skill-top{display:flex;justify-content:space-between;font-size:calc(13.8px * var(--fs));font-weight:700;margin-bottom:7px}
+.skill-top span:last-child{color:var(--text-muted);font-weight:600}
+.skill-bar{height:7px;border-radius:99px;background:var(--bg-soft);overflow:hidden}
+html[data-theme="dark"] .skill-bar{background:rgba(255,255,255,.07)}
+.skill-fill{height:100%;border-radius:99px;background:var(--accent-grad);width:0;transition:width 1.1s cubic-bezier(.22,1,.36,1)}
 
 /* ---------- Контакты ---------- */
 .contact{
@@ -692,9 +710,9 @@ const DEFAULT_CONFIG = {
       { label: "Связаться со мной →", href: "#contact", style: "ghost" },
     ],
     facts: [
-      { icon: "", text: "Живу в Санкт-Петербурге" },
-      { icon: "", text: "Готов выполнить тестовое задание" },
-      { icon: "", text: "В приоритете долгосрочное сотрудничество" },
+      { icon: "📍", text: "Живу в Санкт-Петербурге" },
+      { icon: "✅", text: "Готов выполнить тестовое задание" },
+      { icon: "🤝", text: "В приоритете долгосрочное сотрудничество" },
     ],
     // ── ФОТО: укажите имя файла (photo.jpg рядом с index.html) или ссылку.
     //    Пустое значение "" — красивая заглушка с инициалами.
@@ -703,8 +721,8 @@ const DEFAULT_CONFIG = {
       initials: "РМ",
       alt: "Руслан Мороз",
       chips: [
-        { icon: "", text: "Санкт-Петербург", pos: "tl" },
-        { icon: "", text: "40+ текстов", pos: "br" },
+        { icon: "📍", text: "Санкт-Петербург", pos: "tl" },
+        { icon: "✍️", text: "40+ текстов", pos: "br" },
       ],
     },
   },
@@ -727,12 +745,12 @@ const DEFAULT_CONFIG = {
     title: "Услуги",
     subtitle: "Закрываю контент-задачи проекта под ключ: от стратегии и текстов до сценариев роликов и инструкций для команд.",
     items: [
-      { icon: "", title: "Копирайтинг",           text: "Посты для Telegram и VK, продающие тексты, письма, описания объектов недвижимости." },
-      { icon: "", title: "SMM и ведение каналов", text: "Контент-планы, рубрики, посевы, аналитика. Опыт с каналами застройщиков и агентств." },
-      { icon: "", title: "Сценарии для видео",    text: "Shorts, Reels и длинные ролики: от хука первых секунд до призыва к действию." },
-      { icon: "", title: "Лид-магниты и квизы",   text: "Механики привлечения тёплых лидов: квиз-лендинги, вебинары, гайды." },
-      { icon: "", title: "Статьи и кейсы",        text: "Экспертные статьи для VC, отраслевых медиа и блогов компаний." },
-      { icon: "", title: "Сайты и лендинги",  text: "Продающие тексты для сайтов: заголовки, офферы, структура лендингов и квизов, которая доводит посетителя до заявки." },
+      { icon: "✍️", title: "Копирайтинг",           text: "Посты для Telegram и VK, продающие тексты, письма, описания объектов недвижимости." },
+      { icon: "📱", title: "SMM и ведение каналов", text: "Контент-планы, рубрики, посевы, аналитика. Опыт с каналами застройщиков и агентств." },
+      { icon: "🎬", title: "Сценарии для видео",    text: "Shorts, Reels и длинные ролики: от хука первых секунд до призыва к действию." },
+      { icon: "🧲", title: "Лид-магниты и квизы",   text: "Механики привлечения тёплых лидов: квиз-лендинги, вебинары, гайды." },
+      { icon: "📊", title: "Статьи и кейсы",        text: "Экспертные статьи для VC, отраслевых медиа и блогов компаний." },
+      { icon: "💻", title: "Сайты и лендинги",  text: "Продающие тексты для сайтов: заголовки, офферы, структура лендингов и квизов, которая доводит посетителя до заявки." },
     ],
   },
 
@@ -983,11 +1001,11 @@ const DEFAULT_CONFIG = {
       "Быстро погружаюсь в новую нишу и нахожу нужный тон для аудитории. **В приоритете долгосрочное сотрудничество** — люблю растить проекты месяцами, а не делать разовые публикации. Готов выполнить тестовое задание.",
     ],
     skills: [
-      { name: "Копирайтинг и тексты" },
-      { name: "SMM (Telegram, VK)" },
-      { name: "Контент-маркетинг" },
-      { name: "Сценарии для видео" },
-      { name: "Лидогенерация и воронки" },
+      { name: "Копирайтинг и тексты",    level: 95 },
+      { name: "SMM (Telegram, VK)",      level: 95 },
+      { name: "Контент-маркетинг",       level: 90 },
+      { name: "Сценарии для видео",      level: 85 },
+      { name: "Лидогенерация и воронки", level: 80 },
     ],
   },
 
@@ -1072,7 +1090,7 @@ function applyDesign(){
   const r = document.documentElement;
   if (d.accent)  r.style.setProperty("--accent", d.accent);
   if (d.accent2) r.style.setProperty("--accent-2", d.accent2);
-  if (d.accent) r.style.setProperty("--accent-grad", d.accent);
+  if (d.accent && d.accent2) r.style.setProperty("--accent-grad", `linear-gradient(135deg, ${d.accent} 0%, ${d.accent2} 100%)`);
   r.style.setProperty("--fs", d.fontScale ?? 1);
   r.style.setProperty("--hero-title-scale", (CONFIG.hero || {}).titleScale ?? 1);
 }
@@ -1106,6 +1124,7 @@ function renderHero(){
     `<span class="photo-chip pos-${esc(c.pos || "br")}">${c.icon ? `<span>${c.icon}</span>` : ""}${esc(c.text)}</span>`
   ).join("");
   $("#hero-photo").innerHTML = `
+    <div class="photo-blob"></div>
     <div class="photo-frame">
       <div class="photo-inner">
         <div class="photo-mono">
@@ -1129,7 +1148,7 @@ function renderServices(){
   $("#services-title").textContent = CONFIG.services.title || "";
   $("#services-subtitle").textContent = CONFIG.services.subtitle || "";
   $("#services-grid").innerHTML = (CONFIG.services.items || []).map((s, i) =>
-    `<div class="service reveal"><div class="service-icon">${esc(s.icon || String(i + 1).padStart(2, "0"))}</div><h3>${esc(s.title)}</h3><p>${esc(s.text)}</p></div>`
+    `<div class="service reveal"><div class="service-icon">${s.icon || ""}</div><h3>${esc(s.title)}</h3><p>${esc(s.text)}</p></div>`
   ).join("");
 }
 
@@ -1158,8 +1177,12 @@ function applyFilter(){
 function renderAbout(){
   $("#about-title").textContent = CONFIG.about.title || "";
   $("#about-text").innerHTML = (CONFIG.about.paragraphs || []).map(p => `<p>${bold(p)}</p>`).join("");
-  $("#skills").innerHTML = `<div class="skill-tags">${(CONFIG.about.skills || []).map(s =>
-    `<span class="skill-tag">${esc(s.name)}</span>`).join("")}</div>`;
+  $("#skills").innerHTML = (CONFIG.about.skills || []).map(s => `
+    <div class="skill-row">
+      <div class="skill-top"><span>${esc(s.name)}</span><span>${esc(s.level ?? "")}${s.level ? "%" : ""}</span></div>
+      <div class="skill-bar"><div class="skill-fill" data-level="${esc(s.level ?? 0)}"></div></div>
+    </div>`).join("");
+  $$("#skills .skill-fill").forEach(f => f.style.width = f.dataset.level + "%");
 }
 
 function renderContact(){
@@ -1643,9 +1666,12 @@ if (EDIT_MODE) {
       b.appendChild(fieldWrap("Навыки", null));
       b.appendChild(listEditor(() => CONFIG.about.skills,
         (box, s) => {
-          box.appendChild(fieldWrap("Навык", textInput(() => s.name, v => s.name = v)));
+          const r1 = mk("div", "ed-row");
+          r1.appendChild(fieldWrap("Навык", textInput(() => s.name, v => s.name = v)));
+          r1.appendChild(fieldWrap("Уровень, %", textInput(() => s.level, v => s.level = v, { type: "number" })));
+          box.appendChild(r1);
         },
-        "Добавить навык", () => ({ name: "Новый навык" })));
+        "Добавить навык", () => ({ name: "Новый навык", level: 80 })));
     }));
 
     /* Контакты */
