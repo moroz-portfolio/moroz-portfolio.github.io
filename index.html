@@ -430,6 +430,11 @@ html[data-theme="dark"] .elist-item{background:rgba(255,255,255,.025)}
 body.inline-on [data-edit]{cursor:text}
 body.inline-on [data-edit]:hover{outline:1px dashed color-mix(in srgb, var(--accent) 75%, transparent);outline-offset:3px;border-radius:3px}
 body.inline-on [data-edit]:empty::before{content:"кликните, чтобы добавить";color:var(--text-muted);opacity:.5}
+body.inline-on [data-link]{position:relative}
+body.inline-on [data-link]:hover::after{
+  content:"🔗";position:absolute;top:-9px;right:-9px;width:19px;height:19px;border-radius:50%;
+  background:var(--accent);color:#171310;font-size:10.5px;line-height:19px;text-align:center;pointer-events:none;
+}
 [data-edit][contenteditable="true"]{outline:2px solid var(--accent);outline-offset:3px;border-radius:3px;background:color-mix(in srgb, var(--accent) 10%, transparent);white-space:pre-wrap}
 .inline-hint{
   position:fixed;left:24px;bottom:24px;z-index:205;display:none;max-width:320px;
@@ -654,7 +659,7 @@ html[data-theme="dark"] .pw-note{background:rgba(255,255,255,.03)}
   </div>
 </div>
 <div class="ed-saved" id="ed-saved"></div>
-<div class="inline-hint" id="inline-hint">Кликните по любому тексту на странице — можно печатать прямо в нём.<br>Esc — отмена · Ctrl+клик по ссылке — открыть её</div>
+<div class="inline-hint" id="inline-hint">Клик по тексту — печатать прямо в нём.<br><b>Alt+клик по ссылке</b> — изменить адрес · Ctrl+клик — открыть · Esc — отмена</div>
 
 <!-- 🔐 Окно защиты редактора -->
 <div class="pw-overlay" id="pw-overlay" role="dialog" aria-modal="true" aria-labelledby="pw-title">
@@ -1161,7 +1166,7 @@ function initialsOf(name){
 
 function renderNav(){
   $("#logo-text").textContent = CONFIG.nav.logo;
-  $("#nav").innerHTML = CONFIG.nav.links.map((l, i) => `<a href="${esc(l.href)}"><span data-edit="nav.links.${i}.label">${esc(l.label)}</span></a>`).join("");
+  $("#nav").innerHTML = CONFIG.nav.links.map((l, i) => `<a href="${esc(l.href)}" data-link="nav.links.${i}.href"><span data-edit="nav.links.${i}.label">${esc(l.label)}</span></a>`).join("");
 }
 
 function renderHero(){
@@ -1177,7 +1182,7 @@ function renderHero(){
   $("#hero-tagline").setAttribute("data-edit", "hero.tagline");
   $("#hero-tagline").setAttribute("data-multiline", "1");
   $("#hero-cta").innerHTML = (H.buttons || []).map((b, i) =>
-    `<a class="btn ${b.style === "primary" ? "btn-primary" : "btn-ghost"}" href="${esc(b.href)}"${/^http/.test(b.href) ? ' target="_blank" rel="noopener"' : ""}><span data-edit="hero.buttons.${i}.label">${esc(b.label)}</span></a>`
+    `<a class="btn ${b.style === "primary" ? "btn-primary" : "btn-ghost"}" href="${esc(b.href)}" data-link="hero.buttons.${i}.href"${/^http/.test(b.href) ? ' target="_blank" rel="noopener"' : ""}><span data-edit="hero.buttons.${i}.label">${esc(b.label)}</span></a>`
   ).join("");
   $("#hero-facts").innerHTML = (H.facts || []).map((f, i) =>
     `<span class="fact">${f.icon ? `<span data-edit="hero.facts.${i}.icon">${f.icon}</span>` : ""}<span data-edit="hero.facts.${i}.text">${esc(f.text)}</span></span>`
@@ -1229,7 +1234,7 @@ function renderPortfolio(){
   ).join("");
   const works = PF.works || [];
   $("#works").innerHTML = works.map((w, i) => `
-    <a class="work" data-type="${esc(w.type)}" href="${esc(w.url)}" target="_blank" rel="noopener">
+    <a class="work" data-type="${esc(w.type)}" href="${esc(w.url)}" data-link="portfolio.works.${i}.url" target="_blank" rel="noopener">
       <span class="type-dot" style="background:${esc(typeMeta(w.type).color)}"></span>
       <span data-edit="portfolio.works.${i}.title">${esc(w.title)}</span>
       <span class="arrow">${ICONS.ext}</span>
@@ -1252,17 +1257,17 @@ function renderContact(){
   $("#contact-title").textContent = C.title || "";
   $("#contact-subtitle").textContent = C.subtitle || "";
   $("#contact-cta").innerHTML = (C.buttons || []).map((b, i) =>
-    `<a class="btn ${b.style === "primary" ? "btn-primary" : "btn-ghost"}" href="${esc(b.href)}"><span data-edit="contact.buttons.${i}.label">${esc(b.label)}</span></a>`
+    `<a class="btn ${b.style === "primary" ? "btn-primary" : "btn-ghost"}" href="${esc(b.href)}" data-link="contact.buttons.${i}.href"><span data-edit="contact.buttons.${i}.label">${esc(b.label)}</span></a>`
   ).join("");
   $("#contact-direct").innerHTML = (C.links || []).map((l, i) =>
-    `<a class="contact-chip" href="${esc(l.href)}" target="_blank" rel="noopener">${ICONS[l.icon] || ""}<span data-edit="contact.links.${i}.label">${esc(l.label)}</span></a>`
+    `<a class="contact-chip" href="${esc(l.href)}" data-link="contact.links.${i}.href" target="_blank" rel="noopener">${ICONS[l.icon] || ""}<span data-edit="contact.links.${i}.label">${esc(l.label)}</span></a>`
   ).join("");
 }
 
 function renderFooter(){
   $("#footer-copy").textContent = CONFIG.footer.copy || "";
-  $("#footer-socials").innerHTML = (CONFIG.footer.socials || []).map(s =>
-    `<a href="${esc(s.href)}" target="_blank" rel="noopener" aria-label="${esc(s.label)}" title="${esc(s.label)}">${ICONS[s.icon] || ""}</a>`
+  $("#footer-socials").innerHTML = (CONFIG.footer.socials || []).map((s, i) =>
+    `<a href="${esc(s.href)}" data-link="footer.socials.${i}.href" target="_blank" rel="noopener" aria-label="${esc(s.label)}" title="${esc(s.label)}">${ICONS[s.icon] || ""}</a>`
   ).join("");
 }
 
@@ -2133,6 +2138,23 @@ var saveTimer = null, renderTimer = null;
     }
     render();
   }
+  /* Alt(Option)+клик по ссылке — правка адреса */
+  document.addEventListener("click", e => {
+    if (!inlineEnabled()) return;
+    const linkEl = e.target.closest && e.target.closest("[data-link]");
+    if (linkEl && e.altKey){
+      e.preventDefault(); e.stopPropagation();
+      const path = linkEl.getAttribute("data-link");
+      const cur = getPath(CONFIG, path) || "";
+      const val = prompt("Адрес ссылки", cur);
+      if (val === null) return;
+      setPath(CONFIG, path, val.trim());
+      touch();
+      toast("🔗 Ссылка обновлена");
+      return;
+    }
+  }, true);
+
   document.addEventListener("click", e => {
     if (!inlineEnabled()) return;
     const el = e.target.closest && e.target.closest("[" + INLINE_ATTR + "]");
