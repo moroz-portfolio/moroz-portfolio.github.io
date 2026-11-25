@@ -1868,6 +1868,7 @@ var saveTimer = null, renderTimer = null;
   async function ghApi(method, path, token, body){
     const res = await fetch("https://api.github.com" + path, {
       method,
+      cache: "no-store",
       headers: Object.assign(
         { "Authorization": "Bearer " + token, "Accept": "application/vnd.github+json" },
         body ? { "Content-Type": "application/json" } : {}
@@ -1886,26 +1887,33 @@ var saveTimer = null, renderTimer = null;
       return new Error("GitHub отказал в записи (403). Нужно право Contents: Read and write. " + msg);
     }
     if (res.status === 404) return new Error("Репозиторий или файл не найден / у токена нет доступа. " + msg);
-    if (res.status === 409) return new Error("Файл изменился параллельно — нажмите «Сохранить» ещё раз.");
+    if (res.status === 409) return new Error("Файл одновременно меняется в другой вкладке или на другом устройстве. Закройте лишние вкладки редактора и нажмите «Сохранить сейчас».");
     return new Error("Ошибка GitHub (" + res.status + "). " + msg);
   }
   async function ghSave(token, repoFull, branch){
-    const m = String(repoFull).trim().match(/^([^/\s]+)\/([^/\s]+)$/);
+    const m = String(repoFull).trim().match(/^([^\/\s]+)\/([^\/\s]+)$/);
     if (!m) throw new Error("Репозиторий указывается в формате логин/название");
     const path = "/repos/" + m[1] + "/" + m[2] + "/contents/content.js";
-    let sha;
-    const cur = await ghApi("GET", path + "?ref=" + encodeURIComponent(branch), token);
-    if (cur.ok) sha = cur.data.sha;
-    else if (cur.status !== 404) throw ghErr(cur);
-    const body = {
-      message: "Обновление контента сайта через редактор",
-      content: b64utf8(contentJsText()),
-      branch,
-    };
-    if (sha) body.sha = sha;
-    const res = await ghApi("PUT", path, token, body);
-    if (!res.ok) throw ghErr(res);
-    return res.data;
+    const payload = b64utf8(contentJsText());
+
+    for (let attempt = 0; attempt < 3; attempt++){
+      const cur = await ghApi("GET", path + "?ref=" + encodeURIComponent(branch) + "&t=" + Date.now(), token);
+      let sha;
+      if (cur.ok) sha = cur.data.sha;
+      else if (cur.status !== 404) throw ghErr(cur);
+
+      const body = {
+        message: "Обновление контента сайта через редактор",
+        content: payload,
+        branch,
+      };
+      if (sha) body.sha = sha;
+
+      const res = await ghApi("PUT", path, token, body);
+      if (res.ok) return res.data;
+      if (res.status === 409 && attempt < 2){ await new Promise(r => setTimeout(r, 800)); continue; }
+      throw ghErr(res);
+    }
   }
 
   /* --- 🔐 защита паролем --- */
