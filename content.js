@@ -244,7 +244,7 @@ window.SITE_CONTENT = {
       {
         "type": "article",
         "title": "Превращаем квартиру в неприступную крепость: как выбрать дверь и сигнализацию",
-        "url": "https://www.novostroy.ru/articles/journal/prevrashchaem-kvartiru-v-nepristupnuyu-krepost-kak-vybrat-dver-i-signalizatsiyu/"
+        "url": "https://www.novostroy.u/articles/journal/prevrashchaem-kvartiru-v-nepristupnuyu-krepost-kak-vybrat-dver-i-signalizatsiyu/"
       },
       {
         "type": "article",
