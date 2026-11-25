@@ -165,6 +165,11 @@ window.SITE_CONTENT = {
         "color": "#b8724f"
       },
       {
+        "id": "site",
+        "label": "Сайты и лендинги",
+        "color": "#6f8f8a"
+      },
+      {
         "id": "video",
         "label": "Сценарии",
         "color": "#8d8578"
@@ -330,6 +335,21 @@ window.SITE_CONTENT = {
         "type": "case",
         "title": "Как работает brandformance: комплексное продвижение бренда KERRANOVA",
         "url": "https://molinos.ru/portfolio/internet_marketing/cases/media/kak-rabotaet-brandformance-kompleksnoe-prodvizhenie-brenda-kerranova"
+      },
+      {
+        "type": "site",
+        "title": "Molinos e-commerce",
+        "url": "https://ecom.molinos.ru"
+      },
+      {
+        "type": "site",
+        "title": "Хвойный квартал",
+        "url": "https://hvoynykvartal.ru"
+      },
+      {
+        "type": "site",
+        "title": "TERRA VITAE",
+        "url": "https://terravitae.ru"
       },
       {
         "type": "video",

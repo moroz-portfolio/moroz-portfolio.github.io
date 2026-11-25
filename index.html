@@ -794,6 +794,9 @@ const DEFAULT_CONFIG = {
   // ──────────────────────────── ПОРТФОЛИО ────────────────────────────
   // works — плоский список материалов: { type, title, url },
   // type совпадает с id из filterTypes (all не используется).
+  // ──────────────────────────── ПОРТФОЛИО ────────────────────────────
+  // works — плоский список материалов: { type, title, url },
+  // type совпадает с id из filterTypes (all не используется).
   portfolio:   {
     "show": true,
     "filterTypes": [
@@ -816,6 +819,11 @@ const DEFAULT_CONFIG = {
         "id": "case",
         "label": "Кейсы",
         "color": "#b8724f"
+      },
+      {
+        "id": "site",
+        "label": "Сайты и лендинги",
+        "color": "#6f8f8a"
       },
       {
         "id": "video",
@@ -985,6 +993,21 @@ const DEFAULT_CONFIG = {
         "url": "https://molinos.ru/portfolio/internet_marketing/cases/media/kak-rabotaet-brandformance-kompleksnoe-prodvizhenie-brenda-kerranova"
       },
       {
+        "type": "site",
+        "title": "Molinos e-commerce",
+        "url": "https://ecom.molinos.ru"
+      },
+      {
+        "type": "site",
+        "title": "Хвойный квартал",
+        "url": "https://hvoynykvartal.ru"
+      },
+      {
+        "type": "site",
+        "title": "TERRA VITAE",
+        "url": "https://terravitae.ru"
+      },
+      {
         "type": "video",
         "title": "Выбираем CRM-систему для недвижимости",
         "url": "https://www.youtube.com/shorts/t2CVEvEHnTs"
@@ -1125,11 +1148,12 @@ if (EDIT_MODE) {
       const draftCfg = (parsed && typeof parsed === "object" && parsed.config) ? parsed.config : parsed;
       const draftBase = (parsed && typeof parsed === "object" && "base" in parsed) ? parsed.base : null;
       if (draftBase === publishedFP) {
-        CONFIG = draftCfg; // черновик основан на текущем контенте сайта — открываем его
-      } else if (confirm("Содержимое сайта (content.js) и черновик редактора в этом браузере различаются.\n\nОК — открыть актуальное содержимое сайта (черновик удалится)\n«Отмена» — открыть ваш черновик")) {
-        localStorage.removeItem(DRAFT_KEY);
+        CONFIG = draftCfg; /* черновик с этой же версии сайта — берём его */
       } else {
-        CONFIG = draftCfg;
+        /* Черновик от другой версии сайта: главнее сайт, иначе старая копия
+           затрёт свежие правки при первом автосохранении. */
+        try { localStorage.removeItem(DRAFT_KEY); } catch(e){}
+        window.__draftDropped = true;
       }
     }
   } catch(e){}
@@ -2039,6 +2063,7 @@ var saveTimer = null, renderTimer = null;
     document.body.classList.add("editor-open");
     buildEditor();
     document.body.classList.add("inline-on");
+    if (window.__draftDropped){ window.__draftDropped = false; setTimeout(() => toast("Черновик от старой версии отброшен — открыт контент сайта"), 400); }
     const cfg = ghCfg();
     setSaveState(cfg.token ? "автосохранение включено" : "не подключено", cfg.token ? "ok" : "warn");
   }
