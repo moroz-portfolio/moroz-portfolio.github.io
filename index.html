@@ -413,6 +413,19 @@ html[data-theme="dark"] .elist-item{background:rgba(255,255,255,.025)}
 .ed-state.err{color:#f06c6c;border-color:#f06c6c}
 .ed-state.warn{color:var(--text-muted)}
 
+/* ---------- правка кликом по странице ---------- */
+body.inline-on [data-edit]{cursor:text}
+body.inline-on [data-edit]:hover{outline:1px dashed color-mix(in srgb, var(--accent) 75%, transparent);outline-offset:3px;border-radius:3px}
+body.inline-on [data-edit]:empty::before{content:"кликните, чтобы добавить";color:var(--text-muted);opacity:.5}
+[data-edit][contenteditable="true"]{outline:2px solid var(--accent);outline-offset:3px;border-radius:3px;background:color-mix(in srgb, var(--accent) 10%, transparent);white-space:pre-wrap}
+.inline-hint{
+  position:fixed;left:24px;bottom:24px;z-index:205;display:none;max-width:320px;
+  padding:10px 16px;border-radius:12px;background:var(--card);border:1px solid var(--border-strong);
+  font-size:12.5px;line-height:1.45;color:var(--text-muted);box-shadow:var(--shadow);
+}
+body.inline-on .inline-hint{display:block}
+body.inline-on.editor-open .inline-hint{display:none}
+
 /* ---------- 🔐 Окно ввода пароля ---------- */
 .pw-overlay{
   position:fixed;inset:0;z-index:400;display:none;align-items:center;justify-content:center;
@@ -514,7 +527,7 @@ html[data-theme="dark"] .pw-note{background:rgba(255,255,255,.03)}
 <!-- Шапка -->
 <header class="header" id="header">
   <div class="container header-inner">
-    <a href="#hero" class="logo"><span class="logo-dot"></span><span id="logo-text"></span></a>
+    <a href="#hero" class="logo"><span class="logo-dot"></span><span id="logo-text" data-edit="nav.logo"></span></a>
     <nav class="nav" id="nav"></nav>
     <div class="header-actions">
       <button class="theme-btn" id="theme-btn" aria-label="Переключить тему">🌙</button>
@@ -529,7 +542,7 @@ html[data-theme="dark"] .pw-note{background:rgba(255,255,255,.03)}
     <div class="container">
       <div class="hero-grid">
         <div class="hero-left">
-          <div class="hero-badge reveal"><span class="pulse"></span><span id="hero-badge-text"></span></div>
+          <div class="hero-badge reveal"><span class="pulse"></span><span id="hero-badge-text" data-edit="hero.badge"></span></div>
           <h1 class="reveal" id="hero-title"></h1>
           <div class="hero-roles reveal" id="hero-roles"></div>
           <p class="hero-tagline reveal" id="hero-tagline"></p>
@@ -550,9 +563,9 @@ html[data-theme="dark"] .pw-note{background:rgba(255,255,255,.03)}
   <section id="services">
     <div class="container">
       <div class="section-head reveal">
-        <span class="section-tag" id="services-tag"></span>
-        <h2 id="services-title"></h2>
-        <p id="services-subtitle"></p>
+        <span class="section-tag" id="services-tag" data-edit="services.tag"></span>
+        <h2 id="services-title" data-edit="services.title"></h2>
+        <p id="services-subtitle" data-edit="services.subtitle" data-multiline="1"></p>
       </div>
       <div class="services" id="services-grid"></div>
     </div>
@@ -562,9 +575,9 @@ html[data-theme="dark"] .pw-note{background:rgba(255,255,255,.03)}
   <section id="portfolio">
     <div class="container">
       <div class="section-head reveal">
-        <span class="section-tag">Портфолио</span>
-        <h2>Список публикаций</h2>
-        <p>Работы разных форматов — фильтр по типу материала.</p>
+        <span class="section-tag" id="portfolio-tag" data-edit="portfolio.tag"></span>
+        <h2 id="portfolio-title" data-edit="portfolio.title"></h2>
+        <p id="portfolio-subtitle" data-edit="portfolio.subtitle" data-multiline="1"></p>
       </div>
       <div class="filters reveal" id="filters"></div>
       <div class="works reveal" id="works"></div>
@@ -575,8 +588,8 @@ html[data-theme="dark"] .pw-note{background:rgba(255,255,255,.03)}
   <section id="about">
     <div class="container">
       <div class="section-head reveal">
-        <span class="section-tag">О себе</span>
-        <h2 id="about-title"></h2>
+        <span class="section-tag" id="about-tag" data-edit="about.tag"></span>
+        <h2 id="about-title" data-edit="about.title"></h2>
       </div>
       <div class="about-grid">
         <div class="about-text reveal" id="about-text"></div>
@@ -588,8 +601,8 @@ html[data-theme="dark"] .pw-note{background:rgba(255,255,255,.03)}
   <section id="contact">
     <div class="container">
       <div class="contact reveal">
-        <h2 id="contact-title"></h2>
-        <p id="contact-subtitle"></p>
+        <h2 id="contact-title" data-edit="contact.title"></h2>
+        <p id="contact-subtitle" data-edit="contact.subtitle" data-multiline="1"></p>
         <div class="contact-actions">
           <div class="contact-cta" id="contact-cta"></div>
           <div class="contact-direct" id="contact-direct"></div>
@@ -601,7 +614,7 @@ html[data-theme="dark"] .pw-note{background:rgba(255,255,255,.03)}
 
 <footer class="footer">
   <div class="container footer-inner">
-    <div class="footer-copy" id="footer-copy"></div>
+    <div class="footer-copy" id="footer-copy" data-edit="footer.copy" data-multiline="1"></div>
     <div class="footer-socials" id="footer-socials"></div>
   </div>
 </footer>
@@ -616,6 +629,7 @@ html[data-theme="dark"] .pw-note{background:rgba(255,255,255,.03)}
     <div class="editor-head-row">
       <span class="editor-title"><span class="dot"></span>Редактор сайта</span>
       <button class="ed-btn danger" id="ed-reset" title="Вернуть исходное содержимое">↺</button>
+      <button class="ed-btn" id="ed-inline" title="Редактирование кликом по странице">✏️ клик</button>
       <button class="ed-btn" id="ed-close" title="Закрыть редактор">✕</button>
     </div>
     <div class="editor-head-row">
@@ -627,6 +641,7 @@ html[data-theme="dark"] .pw-note{background:rgba(255,255,255,.03)}
   <div class="editor-body" id="editor-body"></div>
 </aside>
 <div class="ed-saved" id="ed-saved"></div>
+<div class="inline-hint" id="inline-hint">Кликните по любому тексту на странице — можно печатать прямо в нём.<br>Esc — отмена · Ctrl+клик по ссылке — открыть её</div>
 
 <!-- 🔐 Окно защиты редактора -->
 <div class="pw-overlay" id="pw-overlay" role="dialog" aria-modal="true" aria-labelledby="pw-title">
@@ -757,6 +772,9 @@ const DEFAULT_CONFIG = {
   // type совпадает с id из filterTypes (all не используется).
   portfolio:   {
     "show": true,
+    "tag": "Портфолио",
+    "title": "Список публикаций",
+    "subtitle": "Работы разных форматов — фильтр по типу материала.",
     "filterTypes": [
       {
         "id": "all",
@@ -991,6 +1009,7 @@ const DEFAULT_CONFIG = {
   // ────────────────────────────── О СЕБЕ ─────────────────────────────
   about: {
     show: true,
+    tag: "О себе",
     title: "Копирайтер из Санкт-Петербурга",
     // Каждый элемент массива — отдельный абзац. **текст** внутри будет жирным.
     paragraphs: [
@@ -1090,6 +1109,14 @@ const $ = (s, p = document) => p.querySelector(s);
 const $$ = (s, p = document) => [...p.querySelectorAll(s)];
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[c]));
 const bold = s => esc(s).replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+const getPath = (obj, path) => path.split(".").reduce((o, k) => (o == null ? undefined : o[k]), obj);
+function setPath(obj, path, val){
+  const parts = path.split(".");
+  let o = obj;
+  for (let i = 0; i < parts.length - 1; i++){ o = o[parts[i]]; if (o == null) return false; }
+  o[parts[parts.length - 1]] = val;
+  return true;
+}
 
 const ICONS = {
   tg:   '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>',
@@ -1117,7 +1144,7 @@ function initialsOf(name){
 
 function renderNav(){
   $("#logo-text").textContent = CONFIG.nav.logo;
-  $("#nav").innerHTML = CONFIG.nav.links.map(l => `<a href="${esc(l.href)}">${esc(l.label)}</a>`).join("");
+  $("#nav").innerHTML = CONFIG.nav.links.map((l, i) => `<a href="${esc(l.href)}"><span data-edit="nav.links.${i}.label">${esc(l.label)}</span></a>`).join("");
 }
 
 function renderHero(){
@@ -1125,25 +1152,30 @@ function renderHero(){
   $("#hero-badge-text").textContent = H.badge || "";
   const parts = String(H.title || "").split("\n");
   $("#hero-title").innerHTML = esc(parts[0]) + (parts[1] ? ` <span class="grad">${esc(parts.slice(1).join(" "))}</span>` : "");
+  $("#hero-title").setAttribute("data-edit", "hero.title");
+  $("#hero-title").setAttribute("data-multiline", "1");
   $("#hero-roles").textContent = H.roles || "";
+  $("#hero-roles").setAttribute("data-edit", "hero.roles");
   $("#hero-tagline").textContent = H.tagline || "";
-  $("#hero-cta").innerHTML = (H.buttons || []).map(b =>
-    `<a class="btn ${b.style === "primary" ? "btn-primary" : "btn-ghost"}" href="${esc(b.href)}"${/^http/.test(b.href) ? ' target="_blank" rel="noopener"' : ""}>${esc(b.label)}</a>`
+  $("#hero-tagline").setAttribute("data-edit", "hero.tagline");
+  $("#hero-tagline").setAttribute("data-multiline", "1");
+  $("#hero-cta").innerHTML = (H.buttons || []).map((b, i) =>
+    `<a class="btn ${b.style === "primary" ? "btn-primary" : "btn-ghost"}" href="${esc(b.href)}"${/^http/.test(b.href) ? ' target="_blank" rel="noopener"' : ""}><span data-edit="hero.buttons.${i}.label">${esc(b.label)}</span></a>`
   ).join("");
-  $("#hero-facts").innerHTML = (H.facts || []).map(f =>
-    `<span class="fact">${f.icon ? `<span>${f.icon}</span>` : ""}${esc(f.text)}</span>`
+  $("#hero-facts").innerHTML = (H.facts || []).map((f, i) =>
+    `<span class="fact">${f.icon ? `<span data-edit="hero.facts.${i}.icon">${f.icon}</span>` : ""}<span data-edit="hero.facts.${i}.text">${esc(f.text)}</span></span>`
   ).join("");
 
   const P = H.photo || {};
-  const chips = (P.chips || []).map(c =>
-    `<span class="photo-chip pos-${esc(c.pos || "br")}">${c.icon ? `<span>${c.icon}</span>` : ""}${esc(c.text)}</span>`
+  const chips = (P.chips || []).map((c, i) =>
+    `<span class="photo-chip pos-${esc(c.pos || "br")}">${c.icon ? `<span data-edit="hero.photo.chips.${i}.icon">${c.icon}</span>` : ""}<span data-edit="hero.photo.chips.${i}.text">${esc(c.text)}</span></span>`
   ).join("");
   $("#hero-photo").innerHTML = `
     <div class="photo-blob"></div>
     <div class="photo-frame">
       <div class="photo-inner">
         <div class="photo-mono">
-          <span class="mono-letters">${esc(P.initials || initialsOf(CONFIG.nav.logo))}</span>
+          <span class="mono-letters" data-edit="hero.photo.initials">${esc(P.initials || initialsOf(CONFIG.nav.logo))}</span>
           <span class="mono-hint">📷 Добавьте своё фото<br>в редакторе (раздел «Фото»)</span>
         </div>
         ${P.src ? `<img src="${esc(P.src)}" alt="${esc(P.alt || "")}" onerror="this.remove()">` : ""}
@@ -1153,8 +1185,8 @@ function renderHero(){
 }
 
 function renderStats(){
-  $("#stats-grid").innerHTML = (CONFIG.stats.items || []).map(s =>
-    `<div class="stat reveal"><div class="stat-num">${esc(s.num)}</div><div class="stat-label">${esc(s.label)}</div></div>`
+  $("#stats-grid").innerHTML = (CONFIG.stats.items || []).map((s, i) =>
+    `<div class="stat reveal"><div class="stat-num" data-edit="stats.items.${i}.num">${esc(s.num)}</div><div class="stat-label" data-edit="stats.items.${i}.label">${esc(s.label)}</div></div>`
   ).join("");
 }
 
@@ -1163,7 +1195,7 @@ function renderServices(){
   $("#services-title").textContent = CONFIG.services.title || "";
   $("#services-subtitle").textContent = CONFIG.services.subtitle || "";
   $("#services-grid").innerHTML = (CONFIG.services.items || []).map((s, i) =>
-    `<div class="service reveal"><div class="service-icon">${s.icon || ""}</div><h3>${esc(s.title)}</h3><p>${esc(s.text)}</p></div>`
+    `<div class="service reveal"><div class="service-icon" data-edit="services.items.${i}.icon">${s.icon || ""}</div><h3 data-edit="services.items.${i}.title">${esc(s.title)}</h3><p data-edit="services.items.${i}.text" data-multiline="1">${esc(s.text)}</p></div>`
   ).join("");
 }
 
@@ -1172,14 +1204,17 @@ function typeMeta(id){ return (CONFIG.portfolio.filterTypes || []).find(t => t.i
 
 function renderPortfolio(){
   const PF = CONFIG.portfolio;
+  $("#portfolio-tag").textContent = PF.tag || "";
+  $("#portfolio-title").textContent = PF.title || "";
+  $("#portfolio-subtitle").textContent = PF.subtitle || "";
   $("#filters").innerHTML = (PF.filterTypes || []).map(t =>
     `<button class="filter${t.id === activeFilter ? " active" : ""}" data-type="${esc(t.id)}">${esc(t.label)}</button>`
   ).join("");
   const works = PF.works || [];
-  $("#works").innerHTML = works.map(w => `
+  $("#works").innerHTML = works.map((w, i) => `
     <a class="work" data-type="${esc(w.type)}" href="${esc(w.url)}" target="_blank" rel="noopener">
       <span class="type-dot" style="background:${esc(typeMeta(w.type).color)}"></span>
-      <span>${esc(w.title)}</span>
+      <span data-edit="portfolio.works.${i}.title">${esc(w.title)}</span>
       <span class="arrow">${ICONS.ext}</span>
     </a>`).join("");
   applyFilter();
@@ -1190,19 +1225,20 @@ function applyFilter(){
 }
 
 function renderAbout(){
+  $("#about-tag").textContent = CONFIG.about.tag || "";
   $("#about-title").textContent = CONFIG.about.title || "";
-  $("#about-text").innerHTML = (CONFIG.about.paragraphs || []).map(p => `<p>${bold(p)}</p>`).join("");
+  $("#about-text").innerHTML = (CONFIG.about.paragraphs || []).map((p, i) => `<p data-edit="about.paragraphs.${i}" data-multiline="1">${bold(p)}</p>`).join("");
 }
 
 function renderContact(){
   const C = CONFIG.contact;
   $("#contact-title").textContent = C.title || "";
   $("#contact-subtitle").textContent = C.subtitle || "";
-  $("#contact-cta").innerHTML = (C.buttons || []).map(b =>
-    `<a class="btn ${b.style === "primary" ? "btn-primary" : "btn-ghost"}" href="${esc(b.href)}">${esc(b.label)}</a>`
+  $("#contact-cta").innerHTML = (C.buttons || []).map((b, i) =>
+    `<a class="btn ${b.style === "primary" ? "btn-primary" : "btn-ghost"}" href="${esc(b.href)}"><span data-edit="contact.buttons.${i}.label">${esc(b.label)}</span></a>`
   ).join("");
-  $("#contact-direct").innerHTML = (C.links || []).map(l =>
-    `<a class="contact-chip" href="${esc(l.href)}" target="_blank" rel="noopener">${ICONS[l.icon] || ""}${esc(l.label)}</a>`
+  $("#contact-direct").innerHTML = (C.links || []).map((l, i) =>
+    `<a class="contact-chip" href="${esc(l.href)}" target="_blank" rel="noopener">${ICONS[l.icon] || ""}<span data-edit="contact.links.${i}.label">${esc(l.label)}</span></a>`
   ).join("");
 }
 
@@ -1457,7 +1493,14 @@ if (EDIT_MODE) {
     const d = mk("details"); if (open) d.open = true;
     d.appendChild(mk("summary", null, `${icon} ${esc(title)}`));
     const body = mk("div", "ed-section-body");
-    buildFn(body);
+    try {
+      buildFn(body);
+    } catch(err){
+      console.error("Раздел «" + title + "»:", err);
+      const e = mk("div", "hint", "⚠️ Раздел не собрался: " + esc((err && err.message) || String(err)));
+      e.style.color = "#f06c6c";
+      body.appendChild(e);
+    }
     d.appendChild(body);
     return d;
   }
@@ -1465,7 +1508,19 @@ if (EDIT_MODE) {
   /* --- построение панелей --- */
   function buildEditor(){
     const body = $("#editor-body");
+    if (!body) return;
     body.innerHTML = "";
+    try {
+      buildEditorSections(body);
+    } catch(err){
+      console.error("Панель редактора:", err);
+      const box = mk("div", "hint", "⚠️ Панель собралась не полностью: " + esc((err && err.message) || String(err)) + ". Нажмите ↺ наверху, чтобы сбросить черновик.");
+      box.style.cssText = "color:#f06c6c;margin:12px 16px;";
+      body.insertBefore(box, body.firstChild);
+    }
+  }
+
+  function buildEditorSections(body){
 
     /* Дизайн */
     body.appendChild(edSection("🎨", "Дизайн и цвета", b => {
@@ -1955,6 +2010,7 @@ if (EDIT_MODE) {
   function openPanel(){
     document.body.classList.add("editor-open");
     buildEditor();
+    document.body.classList.add("inline-on");
     const cfg = ghCfg();
     setSaveState(cfg.token ? "автосохранение включено" : "не подключено", cfg.token ? "ok" : "warn");
   }
@@ -2033,6 +2089,74 @@ if (EDIT_MODE) {
   /* --- управление панелью --- */
   $("#edit-fab").addEventListener("click", requestEditor);
   $("#ed-close").addEventListener("click", () => document.body.classList.remove("editor-open"));
+
+  /* ---------- РЕДАКТИРОВАНИЕ КЛИКОМ ПО ЛЮБОМУ ТЕКСТУ ---------- */
+  const INLINE_ATTR = "data-edit";
+  function inlineEnabled(){ return document.body.classList.contains("inline-on"); }
+  function inlineOn(on){
+    document.body.classList.toggle("inline-on", !!on);
+    document.querySelectorAll("[" + INLINE_ATTR + "][contenteditable]").forEach(el => el.removeAttribute("contenteditable"));
+  }
+  function nodeToText(el){
+    const clone = el.cloneNode(true);
+    clone.querySelectorAll("br").forEach(br => br.replaceWith(document.createTextNode("\n")));
+    clone.querySelectorAll("div, p, li").forEach(d => d.appendChild(document.createTextNode("\n")));
+    let html = clone.innerHTML;
+    html = html.replace(/<(strong|b)[^>]*>/gi, "**").replace(/<\/(strong|b)>/gi, "**");
+    html = html.replace(/<[^>]+>/g, "");
+    const tmp = document.createElement("textarea");
+    tmp.innerHTML = html;
+    return tmp.value.replace(/\n{3,}/g, "\n\n").replace(/[ \t]+\n/g, "\n").trim();
+  }
+  function inlineBegin(el){
+    if (el.getAttribute("contenteditable") === "true") return;
+    el.setAttribute("contenteditable", "true");
+    el.focus();
+    try {
+      const r = document.createRange(); r.selectNodeContents(el);
+      const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(r);
+    } catch(e){}
+  }
+  function inlineEnd(el, cancel){
+    if (!el || el.getAttribute("contenteditable") !== "true") return;
+    el.removeAttribute("contenteditable");
+    const path = el.getAttribute(INLINE_ATTR);
+    if (!cancel){
+      const val = nodeToText(el);
+      const old = getPath(CONFIG, path);
+      if (!(typeof old === "string" && old.trim() === val)){
+        setPath(CONFIG, path, val);
+        touch();
+        toast("✏️ Сохранено");
+      }
+    }
+    render();
+  }
+  document.addEventListener("click", e => {
+    if (!inlineEnabled()) return;
+    const el = e.target.closest && e.target.closest("[" + INLINE_ATTR + "]");
+    if (!el) return;
+    if (e.ctrlKey || e.metaKey) return;            /* Ctrl+клик — обычное поведение */
+    if (el.getAttribute("contenteditable") === "true") return;
+    e.preventDefault(); e.stopPropagation();
+    inlineBegin(el);
+  }, true);
+  document.addEventListener("blur", e => {
+    const el = e.target && e.target.closest && e.target.closest("[" + INLINE_ATTR + "]");
+    if (el) inlineEnd(el, false);
+  }, true);
+  document.addEventListener("keydown", e => {
+    const el = e.target && e.target.closest && e.target.closest("[" + INLINE_ATTR + "]");
+    if (!el || el.getAttribute("contenteditable") !== "true") return;
+    if (e.key === "Escape"){ e.preventDefault(); inlineEnd(el, true); return; }
+    if (e.key === "Enter" && el.getAttribute("data-multiline") !== "1"){ e.preventDefault(); el.blur(); }
+    if ((e.ctrlKey || e.metaKey) && String(e.key).toLowerCase() === "s"){ e.preventDefault(); el.blur(); }
+  }, true);
+  $("#ed-inline").addEventListener("click", () => {
+    const on = !inlineEnabled();
+    inlineOn(on);
+    toast(on ? "✏️ Клик по тексту — редактирование включено" : "Правка кликом выключена");
+  });
   $("#ed-download").addEventListener("click", downloadContent);
   $("#ed-reset").addEventListener("click", () => {
     if (confirm("Сбросить все изменения к исходному содержимому?")) {

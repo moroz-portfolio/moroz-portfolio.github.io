@@ -371,7 +371,10 @@ window.SITE_CONTENT = {
         "title": "Бесплатный подбор квартиры",
         "url": "https://t.me/novostroyki_quantum/7"
       }
-    ]
+    ],
+    "tag": "Портфолио",
+    "title": "Список публикаций",
+    "subtitle": "Работы разных форматов — фильтр по типу материала."
   },
   "about": {
     "show": true,
@@ -401,7 +404,8 @@ window.SITE_CONTENT = {
         "name": "Лидогенерация и воронки",
         "level": 80
       }
-    ]
+    ],
+    "tag": "О себе"
   },
   "contact": {
     "show": true,
