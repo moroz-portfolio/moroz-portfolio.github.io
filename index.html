@@ -634,9 +634,8 @@ html[data-theme="dark"] .pw-note{background:rgba(255,255,255,.03)}
     </div>
     <div class="editor-head-row">
       <span class="ed-state" id="ed-state">не подключено</span>
-      <button class="ed-btn" id="ed-download" title="Скачать резервную копию content.js">💾</button>
     </div>
-    <div class="editor-note">Меняйте что угодно — <b>сохранится само</b> через пару секунд, сайт обновится за 1–2 минуты. Кнопка 💾 — резервная копия файла.</div>
+    <div class="editor-note">Текст правится <b>кликом прямо на странице</b>. Здесь — только настройки и структура. Сохраняется само.</div>
   </div>
   <div class="editor-body" id="editor-body"></div>
 </aside>
@@ -1560,65 +1559,14 @@ var saveTimer = null, renderTimer = null;
   }
 
   function buildEditorSections(body){
+    const hint = txt => { const d = mk("div", "hint", esc(txt)); d.style.cssText += "margin-bottom:12px;"; return d; };
 
-    /* Дизайн */
-    body.appendChild(edSection("🎨", "Дизайн и цвета", b => {
-      const row = mk("div", "ed-row");
-      row.appendChild(fieldWrap("Основной цвет", colorInput(() => CONFIG.design.accent, v => CONFIG.design.accent = v)));
-      row.appendChild(fieldWrap("Второй цвет", colorInput(() => CONFIG.design.accent2, v => CONFIG.design.accent2 = v)));
-      b.appendChild(row);
-      b.appendChild(fieldWrap("Тема по умолчанию", selectInput([["dark","Тёмная"],["light","Светлая"],["auto","Как в системе"]], () => CONFIG.design.theme, v => CONFIG.design.theme = v)));
-      b.appendChild(fieldWrap("Размер шрифта на всём сайте",
-        rangeInput(() => CONFIG.design.fontScale ?? 1, v => { CONFIG.design.fontScale = v; }, 80, 130, 5),
-        "Масштабирует все тексты: заголовки, абзацы, карточки, кнопки. 100% — исходный размер."));
-    }, true));
-
-    /* Админка / пароль */
-    body.appendChild(edSection("🔐", "Админка (пароль)", b => {
-      const st = mk("div", "hint", CONFIG.admin.passwordHash
-        ? "✅ Пароль задан. Без него редактор не откроется."
-        : "⚠️ Пароль не задан — редактор может открыть любой, кто добавит ?edit=1 к адресу.");
-      st.style.marginBottom = "14px";
-      st.style.fontSize = "12.8px";
-      b.appendChild(st);
-      const p1 = mk("input"); p1.type = "password"; p1.placeholder = "Новый пароль (мин. 4 символа)"; p1.autocomplete = "new-password";
-      const p2 = mk("input"); p2.type = "password"; p2.placeholder = "Повторите пароль"; p2.autocomplete = "new-password";
-      b.appendChild(fieldWrap("Сменить пароль", p1));
-      b.appendChild(fieldWrap(null, p2));
-      const save = mk("button", "ed-btn primary", "🔐 Сохранить пароль");
-      save.style.cssText += "width:100%;justify-content:center;";
-      save.addEventListener("click", async () => {
-        if (p1.value.length < 4) return toast("⚠️ Пароль должен быть не короче 4 символов");
-        if (p1.value !== p2.value) return toast("⚠️ Пароли не совпадают");
-        CONFIG.admin.passwordHash = await hashPassword(p1.value);
-        p1.value = ""; p2.value = "";
-        touch(); buildEditor();
-        toast("🔐 Пароль сохранён! Скачайте content.js");
-      });
-      b.appendChild(save);
-      if (CONFIG.admin.passwordHash){
-        const del = mk("button", "ed-btn danger", "Убрать пароль");
-        del.style.cssText += "width:100%;justify-content:center;margin-top:8px;";
-        del.addEventListener("click", () => {
-          if (confirm("Убрать защиту паролем?")) { CONFIG.admin.passwordHash = ""; touch(); buildEditor(); toast("Пароль убран"); }
-        });
-        b.appendChild(del);
-      }
-      b.appendChild(fieldWrap("Держать редактор открытым без пароля",
-        selectInput([["30","30 минут"],["120","2 часа"],["480","8 часов"],["10080","7 дней"]],
-          () => String(CONFIG.admin.sessionMinutes ?? 120),
-          v => { CONFIG.admin.sessionMinutes = Number(v); touch(); }),
-        "После ввода правильного пароля редактор не спрашивает его повторно в течение этого времени (в рамках открытой вкладки)."));
-    }));
-
-    /* Сохранение на сайт (GitHub) */
+    /* ☁️ Сохранение */
     body.appendChild(edSection("☁️", "Сохранение на сайт", b => {
       const cfg = ghCfg();
-      const st = mk("div", "hint", cfg.token
-        ? "✅ Автосохранение включено: <b>" + esc(cfg.repo || "репозиторий не указан") + "</b> · ветка <b>" + esc(cfg.branch) + "</b>. Правки уходят на сайт сами, через пару секунд после того, как вы перестали печатать."
-        : "Один раз подключите доступ к GitHub — дальше правки сохраняются сами, файлы загружать не нужно.");
-      st.style.cssText += "margin-bottom:14px;";
-      b.appendChild(st);
+      b.appendChild(hint(cfg.token
+        ? "Включено: " + (cfg.repo || "репозиторий не указан") + " · ветка " + cfg.branch + ". Любая правка уходит на сайт сама через пару секунд."
+        : "Один раз подключите доступ к GitHub — дальше всё сохраняется само, файлы загружать не нужно."));
 
       if (cfg.token){
         const row = mk("div", "ed-row");
@@ -1632,10 +1580,7 @@ var saveTimer = null, renderTimer = null;
             if (!r.ok) throw ghErr(r);
             setSaveState("связь есть", "ok");
             toast("✅ Связь есть: " + (r.data.full_name || cfg.repo));
-          } catch(err){
-            setSaveState("ошибка связи", "err");
-            toast("❌ " + err.message);
-          }
+          } catch(err){ setSaveState("ошибка связи", "err"); toast("❌ " + humErr(err)); }
           check.disabled = false; check.textContent = "Проверить связь";
         });
         const off = mk("button", "ed-btn danger", "Отключить");
@@ -1645,20 +1590,17 @@ var saveTimer = null, renderTimer = null;
           setSaveState("не подключено", "warn");
           buildEditor();
         });
-        row.appendChild(check);
-        row.appendChild(off);
+        row.appendChild(check); row.appendChild(off);
         b.appendChild(row);
-        const saveNow = mk("button", "ed-btn primary", "Сохранить сейчас");
+        const saveNow = mk("button", "ed-btn primary", "Сохранить сейчас (Ctrl+S)");
         saveNow.style.cssText += "width:100%;justify-content:center;margin-top:10px;";
-        saveNow.addEventListener("click", () => { autosaveNow(); });
+        saveNow.addEventListener("click", () => autosaveNow());
         b.appendChild(saveNow);
         return;
       }
 
       const tok = mk("input"); tok.type = "password"; tok.placeholder = "github_pat_..."; tok.autocomplete = "off";
-      b.appendChild(fieldWrap("Токен GitHub", tok,
-        "github.com → аватар → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token. Repository access: только moroz-portfolio/moroz-portfolio.github.io. Permissions → Contents: Read and write."));
-
+      b.appendChild(fieldWrap("Токен GitHub", tok, "github.com → аватар → Settings → Developer settings → Fine-grained tokens → Generate new token. Repository access: только этот репозиторий. Permissions → Contents: Read and write. Expiration удобнее No expiration."));
       const rep = mk("input"); rep.type = "text"; rep.placeholder = "логин/репозиторий";
       try { rep.value = localStorage.getItem(GH_REPO_KEY) || detectRepo() || ""; } catch(e){ rep.value = detectRepo(); }
       const br = mk("input"); br.type = "text"; br.placeholder = "main";
@@ -1667,7 +1609,6 @@ var saveTimer = null, renderTimer = null;
       r1.appendChild(fieldWrap("Репозиторий", rep));
       r1.appendChild(fieldWrap("Ветка", br));
       b.appendChild(r1);
-
       const connect = mk("button", "ed-btn primary", "Подключить автосохранение");
       connect.style.cssText += "width:100%;justify-content:center;";
       connect.addEventListener("click", async () => {
@@ -1690,195 +1631,177 @@ var saveTimer = null, renderTimer = null;
           autosaveNow();
         } catch(err){
           setSaveState("ошибка доступа", "err");
-          toast("❌ " + err.message);
+          toast("❌ " + humErr(err));
           connect.disabled = false; connect.textContent = "Подключить автосохранение";
         }
       });
       b.appendChild(connect);
     }, true));
 
-    /* Фото */
-    body.appendChild(edSection("🖼", "Фото (первый экран)", b => {
+    /* 🔐 Пароль */
+    body.appendChild(edSection("🔐", "Пароль на редактор", b => {
+      b.appendChild(hint(CONFIG.admin.passwordHash ? "Пароль задан." : "Пароля нет — редактор откроет любой, кто добавит ?edit=1."));
+      const p1 = mk("input"); p1.type = "password"; p1.placeholder = "Новый пароль"; p1.autocomplete = "new-password";
+      const p2 = mk("input"); p2.type = "password"; p2.placeholder = "Повторите"; p2.autocomplete = "new-password";
+      b.appendChild(fieldWrap("Новый пароль", p1));
+      b.appendChild(fieldWrap(null, p2));
+      const save = mk("button", "ed-btn primary", "Сохранить пароль");
+      save.style.cssText += "width:100%;justify-content:center;";
+      save.addEventListener("click", async () => {
+        if (p1.value.length < 4) return toast("⚠️ Минимум 4 символа");
+        if (p1.value !== p2.value) return toast("⚠️ Пароли не совпадают");
+        CONFIG.admin.passwordHash = await hashPassword(p1.value);
+        p1.value = ""; p2.value = ""; touch(); buildEditor();
+        toast("🔐 Пароль сохранён");
+      });
+      b.appendChild(save);
+      if (CONFIG.admin.passwordHash){
+        const del = mk("button", "ed-btn danger", "Убрать пароль");
+        del.style.cssText += "width:100%;justify-content:center;margin-top:8px;";
+        del.addEventListener("click", () => {
+          if (confirm("Убрать защиту паролем?")) { CONFIG.admin.passwordHash = ""; touch(); buildEditor(); toast("Пароль убран"); }
+        });
+        b.appendChild(del);
+      }
+      b.appendChild(fieldWrap("Не спрашивать пароль",
+        selectInput([["30","30 минут"],["120","2 часа"],["480","8 часов"],["10080","7 дней"]],
+          () => String(CONFIG.admin.sessionMinutes ?? 120),
+          v => { CONFIG.admin.sessionMinutes = Number(v); touch(); })));
+    }));
+
+    /* 🎨 Оформление */
+    body.appendChild(edSection("🎨", "Оформление", b => {
+      const row = mk("div", "ed-row");
+      row.appendChild(fieldWrap("Основной цвет", colorInput(() => CONFIG.design.accent, v => CONFIG.design.accent = v)));
+      row.appendChild(fieldWrap("Второй цвет", colorInput(() => CONFIG.design.accent2, v => CONFIG.design.accent2 = v)));
+      b.appendChild(row);
+      b.appendChild(fieldWrap("Тема по умолчанию", selectInput([["dark","Тёмная"],["light","Светлая"],["auto","Как в системе"]], () => CONFIG.design.theme, v => CONFIG.design.theme = v)));
+      b.appendChild(fieldWrap("Размер шрифта", rangeInput(() => CONFIG.design.fontScale ?? 1, v => { CONFIG.design.fontScale = v; }, 80, 130, 5)));
+    }));
+
+    /* 🖼 Фото */
+    body.appendChild(edSection("🖼", "Фото в первом экране", b => {
       b.appendChild(fieldWrap("Файл или ссылка", textInput(() => CONFIG.hero.photo.src, v => CONFIG.hero.photo.src = v),
-        "Например: photo.jpg (файл рядом с index.html) или полная ссылка на картинку. Пусто — заглушка с инициалами."));
+        "Например photo.jpg или полная ссылка. Пусто — заглушка с инициалами."));
       const up = mk("label", "ed-btn ed-file-btn", "📤 Загрузить с компьютера");
       const fi = mk("input"); fi.type = "file"; fi.accept = "image/*";
       fi.addEventListener("change", () => {
         const f = fi.files[0]; if (!f) return;
-        if (f.size > 2 * 1024 * 1024) { if (!confirm("Файл больше 2 МБ — сайт может тормозить. Всё равно встроить?")) return; }
+        if (f.size > 2 * 1024 * 1024 && !confirm("Файл больше 2 МБ — сайт может тормозить. Всё равно встроить?")) return;
         const r = new FileReader();
-        r.onload = () => { CONFIG.hero.photo.src = r.result; touch(); buildEditor(); toast("🖼 Фото добавлено! Не забудьте скачать content.js"); };
+        r.onload = () => { CONFIG.hero.photo.src = r.result; touch(); buildEditor(); toast("🖼 Фото добавлено"); };
         r.readAsDataURL(f);
       });
       up.appendChild(fi);
       b.appendChild(up);
       const row = mk("div", "ed-row");
-      row.appendChild(fieldWrap("Инициалы (для заглушки)", textInput(() => CONFIG.hero.photo.initials, v => CONFIG.hero.photo.initials = v)));
+      row.appendChild(fieldWrap("Инициалы", textInput(() => CONFIG.hero.photo.initials, v => CONFIG.hero.photo.initials = v)));
       row.appendChild(fieldWrap("Подпись для поисковиков", textInput(() => CONFIG.hero.photo.alt, v => CONFIG.hero.photo.alt = v)));
       b.appendChild(row);
-      b.appendChild(fieldWrap("Плавающие бейджи у фото", null));
-      b.appendChild(listEditor(() => CONFIG.hero.photo.chips,
-        (box, c) => {
-          const r1 = mk("div", "ed-row");
-          r1.appendChild(fieldWrap("Иконка", textInput(() => c.icon, v => c.icon = v)));
-          r1.appendChild(fieldWrap("Текст", textInput(() => c.text, v => c.text = v)));
-          box.appendChild(r1);
-          box.appendChild(fieldWrap("Позиция", selectInput([["tl","Слева сверху"],["tr","Справа сверху"],["bl","Слева снизу"],["br","Справа снизу"]], () => c.pos, v => c.pos = v)));
-        },
-        "Добавить бейдж", () => ({ icon: "✨", text: "Новый бейдж", pos: "br" })));
+      b.appendChild(hint("Тексты бейджей у фото правятся кликом на странице."));
     }));
 
-    /* Меню */
-    body.appendChild(edSection("🧭", "Шапка и меню", b => {
-      b.appendChild(fieldWrap("Логотип (имя)", textInput(() => CONFIG.nav.logo, v => CONFIG.nav.logo = v)));
-      b.appendChild(fieldWrap("Пункты меню", null));
+    /* 🧭 Меню */
+    body.appendChild(edSection("🧭", "Меню", b => {
+      b.appendChild(hint("Названия пунктов правятся кликом на странице. Здесь — ссылки и порядок."));
       b.appendChild(listEditor(() => CONFIG.nav.links,
-        (box, l) => {
-          box.appendChild(fieldWrap("Название", textInput(() => l.label, v => l.label = v)));
-          box.appendChild(fieldWrap("Ссылка (якорь)", textInput(() => l.href, v => l.href = v), "#services, #portfolio, #about, #contact"));
-        },
-        "Добавить пункт", () => ({ label: "Новый раздел", href: "#hero" })));
+        (box, l) => { box.appendChild(fieldWrap("Ссылка (якорь)", textInput(() => l.href, v => l.href = v), "#services, #portfolio, #about, #contact")); },
+        "Добавить пункт", () => ({ label: "Новый пункт", href: "#" })));
     }));
 
-    /* Hero */
-    body.appendChild(edSection("🚀", "Первый экран", b => {
-      b.appendChild(checkRow("Показывать блок", () => CONFIG.hero.show, v => CONFIG.hero.show = v));
-      b.appendChild(fieldWrap("Бейдж над заголовком", textInput(() => CONFIG.hero.badge, v => CONFIG.hero.badge = v)));
-      b.appendChild(fieldWrap("Заголовок", null, "Символ \\n — перенос строки. Всё, что после него, окрасится градиентом."));
-      b.appendChild(textArea(() => CONFIG.hero.title, v => CONFIG.hero.title = v, 2, 'Например: Делаю контент,\\nкоторый продаёт'));
-      b.appendChild(fieldWrap("Размер главного заголовка",
-        rangeInput(() => CONFIG.hero.titleScale ?? 1, v => { CONFIG.hero.titleScale = v; }, 55, 120, 1),
-        "Только для большого заголовка первого экрана. Сделайте меньше, если текст выглядит громоздко."));
-      b.appendChild(fieldWrap("Роли (через ·)", textInput(() => CONFIG.hero.roles, v => CONFIG.hero.roles = v)));
-      b.appendChild(fieldWrap("Описание", null));
-      b.appendChild(textArea(() => CONFIG.hero.tagline, v => CONFIG.hero.tagline = v, 3));
-      b.appendChild(fieldWrap("Кнопки", null));
+    /* 🚀 Кнопки первого экрана */
+    body.appendChild(edSection("🚀", "Кнопки первого экрана", b => {
+      b.appendChild(hint("Текст кнопки правится кликом. Здесь — ссылка и вид."));
       b.appendChild(listEditor(() => CONFIG.hero.buttons,
         (box, bt) => {
-          box.appendChild(fieldWrap("Текст кнопки", textInput(() => bt.label, v => bt.label = v)));
-          box.appendChild(fieldWrap("Ссылка", textInput(() => bt.href, v => bt.href = v)));
-          box.appendChild(fieldWrap("Стиль", selectInput([["primary","Яркая (акцент)"],["ghost","Простая"]], () => bt.style, v => bt.style = v)));
+          box.appendChild(fieldWrap("Ссылка", textInput(() => bt.href, v => bt.href = v), "#contact, mailto:..., https://..."));
+          box.appendChild(fieldWrap("Вид", selectInput([["primary","Яркая"],["ghost","Простая"]], () => bt.style, v => bt.style = v)));
         },
         "Добавить кнопку", () => ({ label: "Новая кнопка", href: "#contact", style: "ghost" })));
-      b.appendChild(fieldWrap("Факты-плашки", null));
-      b.appendChild(listEditor(() => CONFIG.hero.facts,
-        (box, f) => {
-          const r1 = mk("div", "ed-row");
-          r1.appendChild(fieldWrap("Иконка (эмодзи)", textInput(() => f.icon, v => f.icon = v)));
-          r1.appendChild(fieldWrap("Текст", textInput(() => f.text, v => f.text = v)));
-          box.appendChild(r1);
-        },
-        "Добавить факт", () => ({ icon: "✨", text: "Новый факт" })));
     }));
 
-    /* Цифры */
+    /* 🔢 Цифры */
     body.appendChild(edSection("🔢", "Цифры", b => {
-      b.appendChild(checkRow("Показывать блок", () => CONFIG.stats.show, v => CONFIG.stats.show = v));
-      b.appendChild(listEditor(() => CONFIG.stats.items,
-        (box, s) => {
-          const r1 = mk("div", "ed-row");
-          r1.appendChild(fieldWrap("Число", textInput(() => s.num, v => s.num = v)));
-          r1.appendChild(fieldWrap("Подпись", textInput(() => s.label, v => s.label = v)));
-          box.appendChild(r1);
-        },
-        "Добавить цифру", () => ({ num: "0", label: "новая метрика" })));
+      b.appendChild(hint("Числа и подписи правятся кликом на странице."));
+      b.appendChild(listEditor(() => CONFIG.stats.items, () => {},
+        "Добавить цифру", () => ({ num: "0", label: "Новая подпись" })));
     }));
 
-    /* Услуги */
+    /* 🛠 Услуги */
     body.appendChild(edSection("🛠", "Услуги", b => {
-      b.appendChild(checkRow("Показывать блок", () => CONFIG.services.show, v => CONFIG.services.show = v));
-      b.appendChild(fieldWrap("Надзаголовок", textInput(() => CONFIG.services.tag, v => CONFIG.services.tag = v)));
-      b.appendChild(fieldWrap("Заголовок", textInput(() => CONFIG.services.title, v => CONFIG.services.title = v)));
-      b.appendChild(fieldWrap("Подзаголовок", null));
-      b.appendChild(textArea(() => CONFIG.services.subtitle, v => CONFIG.services.subtitle = v, 2));
-      b.appendChild(listEditor(() => CONFIG.services.items,
-        (box, s) => {
-          box.appendChild(fieldWrap("Иконка (эмодзи)", textInput(() => s.icon, v => s.icon = v)));
-          box.appendChild(fieldWrap("Название услуги", textInput(() => s.title, v => s.title = v)));
-          box.appendChild(fieldWrap("Описание", null));
-          box.appendChild(textArea(() => s.text, v => s.text = v, 2));
-        },
-        "Добавить услугу", () => ({ icon: "✨", title: "Новая услуга", text: "Описание услуги" })));
+      b.appendChild(hint("Название и описание правятся кликом на странице. Здесь — сколько их и порядок."));
+      b.appendChild(listEditor(() => CONFIG.services.items, () => {},
+        "Добавить услугу", () => ({ icon: "", title: "Новая услуга", text: "Описание" })));
     }));
 
-    /* Портфолио */
-    body.appendChild(edSection("💼", "Портфолио", b => {
-      b.appendChild(checkRow("Показывать блок", () => CONFIG.portfolio.show, v => CONFIG.portfolio.show = v));
-      b.appendChild(fieldWrap("Типы материалов (фильтры)", null));
+    /* 💼 Публикации */
+    body.appendChild(edSection("💼", "Публикации", b => {
+      b.appendChild(hint("Названия публикаций правятся кликом на странице. Здесь — тип и ссылка."));
+      b.appendChild(listEditor(() => CONFIG.portfolio.works,
+        (box, w) => {
+          const r = mk("div", "ed-row");
+          r.appendChild(fieldWrap("Тип", selectInput(
+            CONFIG.portfolio.filterTypes.filter(t => t.id !== "all").map(t => [t.id, t.label]),
+            () => w.type, v => w.type = v)));
+          box.appendChild(r);
+          box.appendChild(fieldWrap("Ссылка", textInput(() => w.url, v => w.url = v)));
+        },
+        "Добавить публикацию", () => ({ type: "post", title: "Новая публикация", url: "https://" })));
+      b.appendChild(fieldWrap("Типы (фильтры)", null));
       b.appendChild(listEditor(() => CONFIG.portfolio.filterTypes,
         (box, t) => {
-          const r1 = mk("div", "ed-row");
-          r1.appendChild(fieldWrap("Код (лат.)", textInput(() => t.id, v => t.id = v)));
-          r1.appendChild(fieldWrap("Название", textInput(() => t.label, v => t.label = v)));
-          r1.appendChild(fieldWrap("Цвет", colorInput(() => t.color, v => t.color = v)));
-          box.appendChild(r1);
+          const r = mk("div", "ed-row");
+          r.appendChild(fieldWrap("Код", textInput(() => t.id, v => t.id = v)));
+          r.appendChild(fieldWrap("Название", textInput(() => t.label, v => t.label = v)));
+          r.appendChild(fieldWrap("Цвет", colorInput(() => t.color, v => t.color = v)));
+          box.appendChild(r);
         },
         "Добавить тип", () => ({ id: "new", label: "Новый тип", color: "#d4915a" })));
-
-      b.appendChild(fieldWrap("Материалы (плоский список)", null, "Тип влияет на фильтр. Ссылка открывается в новой вкладке."));
-      b.appendChild(listEditor(() => CONFIG.portfolio.works,
-        (box, it) => {
-          const r2 = mk("div", "ed-row");
-          r2.appendChild(fieldWrap("Тип", selectInput(
-            CONFIG.portfolio.filterTypes.filter(t => t.id !== "all").map(t => [t.id, t.label]),
-            () => it.type, v => it.type = v)));
-          box.appendChild(r2);
-          box.appendChild(fieldWrap("Название материала", null));
-          box.appendChild(textArea(() => it.title, v => it.title = v, 2));
-          box.appendChild(fieldWrap("Ссылка", textInput(() => it.url, v => it.url = v)));
-        },
-        "Добавить материал", () => ({ type: "post", title: "Новый материал", url: "https://" })));
     }));
 
-    /* О себе */
-    body.appendChild(edSection("👤", "О себе", b => {
-      b.appendChild(checkRow("Показывать блок", () => CONFIG.about.show, v => CONFIG.about.show = v));
-      b.appendChild(fieldWrap("Заголовок", textInput(() => CONFIG.about.title, v => CONFIG.about.title = v)));
-      b.appendChild(fieldWrap("Абзацы", null, "**текст** внутри абзаца станет жирным"));
-      b.appendChild(listEditor(() => CONFIG.about.paragraphs,
-        (box, p, idx) => {
-          const t = mk("textarea"); t.rows = 3; t.value = CONFIG.about.paragraphs[idx];
-          t.addEventListener("input", () => { CONFIG.about.paragraphs[idx] = t.value; touch(); });
-          box.appendChild(t);
-        },
-        "Добавить абзац", () => ""));
+    /* 👤 О себе */
+    body.appendChild(edSection("👤", "Абзацы «О себе»", b => {
+      b.appendChild(hint("Текст абзацев правится кликом на странице. Здесь — сколько их."));
+      b.appendChild(listEditor(() => CONFIG.about.paragraphs, () => {},
+        "Добавить абзац", () => "Новый абзац"));
     }));
 
-    /* Контакты */
+    /* ✉️ Контакты */
     body.appendChild(edSection("✉️", "Контакты", b => {
-      b.appendChild(checkRow("Показывать блок", () => CONFIG.contact.show, v => CONFIG.contact.show = v));
-      b.appendChild(fieldWrap("Заголовок", textInput(() => CONFIG.contact.title, v => CONFIG.contact.title = v)));
-      b.appendChild(fieldWrap("Подзаголовок", null));
-      b.appendChild(textArea(() => CONFIG.contact.subtitle, v => CONFIG.contact.subtitle = v, 2));
-      b.appendChild(fieldWrap("Кнопки", null));
+      b.appendChild(hint("Тексты и подписи правятся кликом на странице."));
+      b.appendChild(fieldWrap("Кнопки: ссылки", null));
       b.appendChild(listEditor(() => CONFIG.contact.buttons,
         (box, bt) => {
-          box.appendChild(fieldWrap("Текст", textInput(() => bt.label, v => bt.label = v)));
           box.appendChild(fieldWrap("Ссылка", textInput(() => bt.href, v => bt.href = v), "mailto:..., tel:+7..., https://..."));
-          box.appendChild(fieldWrap("Стиль", selectInput([["primary","Яркая (акцент)"],["ghost","Простая"]], () => bt.style, v => bt.style = v)));
+          box.appendChild(fieldWrap("Вид", selectInput([["primary","Яркая"],["ghost","Простая"]], () => bt.style, v => bt.style = v)));
         },
         "Добавить кнопку", () => ({ label: "Новая кнопка", href: "mailto:", style: "ghost" })));
       b.appendChild(fieldWrap("Ссылки-чипы", null));
       b.appendChild(listEditor(() => CONFIG.contact.links,
         (box, l) => {
-          box.appendChild(fieldWrap("Название", textInput(() => l.label, v => l.label = v)));
           box.appendChild(fieldWrap("Ссылка", textInput(() => l.href, v => l.href = v)));
           box.appendChild(fieldWrap("Иконка", selectInput([["tg","Telegram"],["vk","VK"],["mail","Email"],["doc","Документ"]], () => l.icon, v => l.icon = v)));
         },
         "Добавить ссылку", () => ({ label: "Новая ссылка", href: "https://", icon: "tg" })));
     }));
 
-    /* Футер */
-    body.appendChild(edSection("📎", "Футер (подвал)", b => {
-      b.appendChild(fieldWrap("Копирайт", textInput(() => CONFIG.footer.copy, v => CONFIG.footer.copy = v)));
-      b.appendChild(fieldWrap("Соцсети", null));
+    /* 📎 Футер */
+    body.appendChild(edSection("📎", "Подвал", b => {
+      b.appendChild(hint("Копирайт правится кликом на странице."));
       b.appendChild(listEditor(() => CONFIG.footer.socials,
-        (box, s) => {
-          box.appendChild(fieldWrap("Название", textInput(() => s.label, v => s.label = v)));
-          box.appendChild(fieldWrap("Ссылка", textInput(() => s.href, v => s.href = v)));
-          box.appendChild(fieldWrap("Иконка", selectInput([["tg","Telegram"],["vk","VK"],["mail","Email"],["doc","Документ"]], () => s.icon, v => s.icon = v)));
+        (box, so) => {
+          box.appendChild(fieldWrap("Ссылка", textInput(() => so.href, v => so.href = v)));
+          box.appendChild(fieldWrap("Иконка", selectInput([["tg","Telegram"],["vk","VK"],["mail","Email"],["doc","Документ"]], () => so.icon, v => so.icon = v)));
         },
         "Добавить соцсеть", () => ({ label: "Новая сеть", href: "https://", icon: "tg" })));
+    }));
+
+    /* 🧩 Блоки */
+    body.appendChild(edSection("🧩", "Блоки на странице", b => {
+      b.appendChild(hint("Выключенный блок скрывается с сайта целиком."));
+      [["hero","Первый экран"],["stats","Цифры"],["services","Услуги"],["portfolio","Публикации"],["about","О себе"],["contact","Контакты"]].forEach(([key, title]) => {
+        b.appendChild(checkRow(title, () => CONFIG[key] && CONFIG[key].show, v => { CONFIG[key].show = v; }));
+      });
     }));
   }
 
@@ -2197,7 +2120,7 @@ var saveTimer = null, renderTimer = null;
     inlineOn(on);
     toast(on ? "✏️ Клик по тексту — редактирование включено" : "Правка кликом выключена");
   });
-  $("#ed-download").addEventListener("click", downloadContent);
+  const dlBtn = $("#ed-download"); if (dlBtn) dlBtn.addEventListener("click", downloadContent);
   $("#ed-reset").addEventListener("click", () => {
     if (confirm("Сбросить все изменения к исходному содержимому?")) {
       try { localStorage.removeItem(DRAFT_KEY); } catch(e){}
