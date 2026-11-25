@@ -1057,7 +1057,11 @@ const DEFAULT_CONFIG = {
    ║  ТЕХНИЧЕСКАЯ ЧАСТЬ — МЕНЯТЬ НЕ НУЖНО                               ║
    ╚════════════════════════════════════════════════════════════════════╝ */
 
-console.log("portfolio build 2026-11-25-6 (password modal без внешних переменных)");
+window.__buildVersion = "2026-11-25-9";
+window.__pErr = window.__pErr || [];
+window.addEventListener("error", e => { try { window.__pErr.push((e.message || "error") + " @" + (e.lineno || "?")); } catch(x){} });
+window.addEventListener("unhandledrejection", e => { try { window.__pErr.push("promise: " + ((e.reason && e.reason.message) || e.reason)); } catch(x){} });
+console.log("portfolio build " + window.__buildVersion);
 const EDIT_MODE = (() => { try { return new URLSearchParams(location.search).has("edit"); } catch(e){ return false; } })();
 const DRAFT_KEY = "portfolioDraft_v1";
 
@@ -1497,6 +1501,7 @@ if (EDIT_MODE) {
       buildFn(body);
     } catch(err){
       console.error("Раздел «" + title + "»:", err);
+      try { window.__pErr.push(title + ": " + ((err && err.message) || err)); } catch(x){}
       const e = mk("div", "hint", "⚠️ Раздел не собрался: " + esc((err && err.message) || String(err)));
       e.style.color = "#f06c6c";
       body.appendChild(e);
@@ -1506,17 +1511,37 @@ if (EDIT_MODE) {
   }
 
   /* --- построение панелей --- */
+  function diagText(){
+    const body = document.getElementById("editor-body");
+    const secs = body ? Array.prototype.map.call(body.querySelectorAll("summary"), s => s.textContent.trim()).join(", ") : "—";
+    return "версия: " + (window.__buildVersion || "?")
+      + "\nбраузер: " + navigator.userAgent
+      + "\n#editor-body: " + (body ? ("есть, детей " + body.children.length) : "НЕ НАЙДЕН")
+      + "\nразделы: " + secs
+      + "\nошибки: " + ((window.__pErr && window.__pErr.length) ? window.__pErr.join(" | ") : "нет")
+      + "\nCONFIG.portfolio.works: " + ((CONFIG.portfolio && CONFIG.portfolio.works && CONFIG.portfolio.works.length) || 0);
+  }
+  window.__diag = diagText;
+
   function buildEditor(){
     const body = $("#editor-body");
-    if (!body) return;
+    if (!body){ alert("Не найден контейнер панели.\n\n" + diagText()); return; }
     body.innerHTML = "";
     try {
       buildEditorSections(body);
     } catch(err){
       console.error("Панель редактора:", err);
       const box = mk("div", "hint", "⚠️ Панель собралась не полностью: " + esc((err && err.message) || String(err)) + ". Нажмите ↺ наверху, чтобы сбросить черновик.");
-      box.style.cssText = "color:#f06c6c;margin:12px 16px;";
+      box.style.cssText = "color:#f06c6c;margin:12px 16px;white-space:pre-wrap;";
       body.insertBefore(box, body.firstChild);
+      window.__pErr.push("build: " + ((err && err.message) || err));
+    }
+    if (!body.children.length){
+      const d = document.createElement("div");
+      d.className = "hint";
+      d.style.cssText = "color:#f06c6c;margin:12px 16px;white-space:pre-wrap;font-size:11.5px;";
+      d.textContent = "Панель пуста. Диагностика:\n" + diagText();
+      body.appendChild(d);
     }
   }
 
@@ -2008,6 +2033,7 @@ if (EDIT_MODE) {
     }
   });
   function openPanel(){
+    if (new URLSearchParams(location.search).has("diag")) setTimeout(() => alert(diagText()), 300);
     document.body.classList.add("editor-open");
     buildEditor();
     document.body.classList.add("inline-on");
