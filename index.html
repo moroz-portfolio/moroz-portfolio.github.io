@@ -404,6 +404,14 @@ html[data-theme="dark"] .elist-item{background:rgba(255,255,255,.025)}
   font-size:13.5px;font-weight:700;box-shadow:var(--shadow);transition:.35s;pointer-events:none;
 }
 .ed-saved.show{transform:translateX(-50%) translateY(0)}
+.ed-state{
+  font-size:12px;font-weight:700;padding:5px 10px;border-radius:99px;border:1px solid var(--border);
+  color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:230px;
+}
+.ed-state.busy{color:#f0a35c;border-color:#f0a35c}
+.ed-state.ok{color:#3ddc84;border-color:#3ddc84}
+.ed-state.err{color:#f06c6c;border-color:#f06c6c}
+.ed-state.warn{color:var(--text-muted)}
 
 /* ---------- 🔐 Окно ввода пароля ---------- */
 .pw-overlay{
@@ -611,9 +619,10 @@ html[data-theme="dark"] .pw-note{background:rgba(255,255,255,.03)}
       <button class="ed-btn" id="ed-close" title="Закрыть редактор">✕</button>
     </div>
     <div class="editor-head-row">
-      <button class="ed-btn primary" id="ed-download">💾 Скачать content.js</button>
+      <span class="ed-state" id="ed-state">не подключено</span>
+      <button class="ed-btn" id="ed-download" title="Скачать резервную копию content.js">💾</button>
     </div>
-    <div class="editor-note">Изменения видны сразу. Чтобы сохранить их навсегда — скачайте <b>content.js</b> и положите его рядом с index.html (локально) или загрузите в репозиторий GitHub.</div>
+    <div class="editor-note">Меняйте что угодно — <b>сохранится само</b> через пару секунд, сайт обновится за 1–2 минуты. Кнопка 💾 — резервная копия файла.</div>
   </div>
   <div class="editor-body" id="editor-body"></div>
 </aside>
@@ -1304,8 +1313,9 @@ if (EDIT_MODE) {
     clearTimeout(saveTimer);
     saveTimer = setTimeout(() => {
       try { localStorage.setItem(DRAFT_KEY, JSON.stringify({ base: currentBase, config: CONFIG })); }
-      catch(e){ toast("⚠️ Черновик не помещается в память браузера (скорее всего, из-за большого фото). Скачайте content.js!"); }
+      catch(e){ toast("⚠️ Черновик не помещается в память браузера (скорее всего, из-за большого фото). Скачайте резервную копию!"); }
     }, 400);
+    autosaveSchedule();
   }
   function syncDraftBase(){
     // после успешного сохранения на сайт/в файл черновик считается синхронизированным
@@ -1316,6 +1326,54 @@ if (EDIT_MODE) {
     const t = $("#ed-saved");
     t.textContent = msg; t.classList.add("show");
     setTimeout(() => t.classList.remove("show"), 2600);
+  }
+
+  /* ---------- АВТОСОХРАНЕНИЕ НА САЙТ ---------- */
+  let autoTimer = null, autoBusy = false, autoPending = false;
+  function ghCfg(){
+    let token = "", repo = "", branch = "main";
+    try {
+      token = localStorage.getItem(GH_TOKEN_KEY) || "";
+      repo = localStorage.getItem(GH_REPO_KEY) || detectRepo() || "";
+      branch = localStorage.getItem(GH_BRANCH_KEY) || "main";
+    } catch(e){}
+    return { token: token, repo: repo, branch: branch };
+  }
+  function humErr(err){
+    const m = String((err && err.message) || "");
+    if (/Failed to fetch|NetworkError|Load failed|Network request failed/i.test(m)) return "нет связи с GitHub";
+    return m || "неизвестная ошибка";
+  }
+  function setSaveState(text, kind){
+    const el = document.getElementById("ed-state");
+    if (!el) return;
+    el.textContent = text || "";
+    el.className = "ed-state" + (kind ? " " + kind : "");
+  }
+  function autosaveSchedule(){
+    const cfg = ghCfg();
+    if (!cfg.token){ setSaveState("не подключено", "warn"); return; }
+    setSaveState("сохраняю…", "busy");
+    clearTimeout(autoTimer);
+    autoTimer = setTimeout(function(){ autosaveNow(); }, 1800);
+  }
+  async function autosaveNow(){
+    const cfg = ghCfg();
+    if (!cfg.token || !cfg.repo){ setSaveState("не подключено", "warn"); return; }
+    if (autoBusy){ autoPending = true; return; }
+    autoBusy = true;
+    setSaveState("сохраняю…", "busy");
+    try {
+      await ghSave(cfg.token, cfg.repo, cfg.branch);
+      syncDraftBase();
+      const t = new Date().toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" });
+      setSaveState("сохранено в " + t, "ok");
+    } catch(err){
+      setSaveState("не сохранено: " + humErr(err), "err");
+    } finally {
+      autoBusy = false;
+      if (autoPending){ autoPending = false; autosaveNow(); }
+    }
   }
 
   /* --- хелперы построения форм --- */
@@ -1460,12 +1518,52 @@ if (EDIT_MODE) {
     }));
 
     /* Сохранение на сайт (GitHub) */
-    body.appendChild(edSection("☁️", "Сохранение прямо на сайт (GitHub)", b => {
-      b.appendChild(mk("div", "hint", "Сохраняет изменения сразу в репозиторий — сайт обновится сам через 1–2 минуты, без ручной загрузки файлов. Токен хранится только в вашем браузере и никогда не попадает в content.js.")).style.marginBottom = "14px";
+    body.appendChild(edSection("☁️", "Сохранение на сайт", b => {
+      const cfg = ghCfg();
+      const st = mk("div", "hint", cfg.token
+        ? "✅ Автосохранение включено: <b>" + esc(cfg.repo || "репозиторий не указан") + "</b> · ветка <b>" + esc(cfg.branch) + "</b>. Правки уходят на сайт сами, через пару секунд после того, как вы перестали печатать."
+        : "Один раз подключите доступ к GitHub — дальше правки сохраняются сами, файлы загружать не нужно.");
+      st.style.cssText += "margin-bottom:14px;";
+      b.appendChild(st);
 
-      const tok = mk("input"); tok.type = "password"; tok.placeholder = "github_pat_... (токен GitHub)"; tok.autocomplete = "off";
-      try { tok.value = localStorage.getItem(GH_TOKEN_KEY) || ""; } catch(e){}
-      b.appendChild(fieldWrap("Токен (Personal Access Token)", tok, "Как получить: github.com → аватар → Settings → Developer settings → Fine-grained tokens → Generate new token. Доступ: только этот репозиторий, права: Contents → Read and write."));
+      if (cfg.token){
+        const row = mk("div", "ed-row");
+        const check = mk("button", "ed-btn", "Проверить связь");
+        check.addEventListener("click", async () => {
+          check.disabled = true; check.textContent = "⏳";
+          try {
+            const m = cfg.repo.match(/^([^\/\s]+)\/([^\s]+)$/);
+            if (!m) throw new Error("Не указан репозиторий");
+            const r = await ghApi("GET", "/repos/" + m[1] + "/" + m[2], cfg.token);
+            if (!r.ok) throw ghErr(r);
+            setSaveState("связь есть", "ok");
+            toast("✅ Связь есть: " + (r.data.full_name || cfg.repo));
+          } catch(err){
+            setSaveState("ошибка связи", "err");
+            toast("❌ " + err.message);
+          }
+          check.disabled = false; check.textContent = "Проверить связь";
+        });
+        const off = mk("button", "ed-btn danger", "Отключить");
+        off.addEventListener("click", () => {
+          if (!confirm("Отключить автосохранение в этом браузере?")) return;
+          try { localStorage.removeItem(GH_TOKEN_KEY); } catch(e){}
+          setSaveState("не подключено", "warn");
+          buildEditor();
+        });
+        row.appendChild(check);
+        row.appendChild(off);
+        b.appendChild(row);
+        const saveNow = mk("button", "ed-btn primary", "Сохранить сейчас");
+        saveNow.style.cssText += "width:100%;justify-content:center;margin-top:10px;";
+        saveNow.addEventListener("click", () => { autosaveNow(); });
+        b.appendChild(saveNow);
+        return;
+      }
+
+      const tok = mk("input"); tok.type = "password"; tok.placeholder = "github_pat_..."; tok.autocomplete = "off";
+      b.appendChild(fieldWrap("Токен GitHub", tok,
+        "github.com → аватар → Settings → Developer settings → Personal access tokens → Fine-grained tokens → Generate new token. Repository access: только moroz-portfolio/moroz-portfolio.github.io. Permissions → Contents: Read and write."));
 
       const rep = mk("input"); rep.type = "text"; rep.placeholder = "логин/репозиторий";
       try { rep.value = localStorage.getItem(GH_REPO_KEY) || detectRepo() || ""; } catch(e){ rep.value = detectRepo(); }
@@ -1476,47 +1574,34 @@ if (EDIT_MODE) {
       r1.appendChild(fieldWrap("Ветка", br));
       b.appendChild(r1);
 
-      const status = mk("div", "hint", "");
-      status.style.cssText += "min-height:18px;font-size:12.3px;margin-bottom:10px;";
-      b.appendChild(status);
-
-      const save = mk("button", "ed-btn primary", "🚀 Сохранить изменения на сайте");
-      save.style.cssText += "width:100%;justify-content:center;";
-      save.addEventListener("click", async () => {
+      const connect = mk("button", "ed-btn primary", "Подключить автосохранение");
+      connect.style.cssText += "width:100%;justify-content:center;";
+      connect.addEventListener("click", async () => {
         const token = tok.value.trim();
-        if (!token){ status.textContent = "⚠️ Введите токен GitHub"; return; }
-        if (!rep.value.trim()){ status.textContent = "⚠️ Введите репозиторий (логин/название)"; return; }
-        save.disabled = true;
-        const oldText = save.textContent;
-        save.textContent = "⏳ Сохраняю…";
-        status.textContent = "";
+        const repo = (rep.value.trim() || detectRepo());
+        if (!token) return toast("⚠️ Вставьте токен GitHub");
+        const m = repo.match(/^([^\/\s]+)\/([^\s]+)$/);
+        if (!m) return toast("⚠️ Репозиторий в формате логин/название");
+        connect.disabled = true; connect.textContent = "⏳ Проверяю доступ…";
         try {
-          await ghSave(token, rep.value, br.value.trim() || "main");
+          const r = await ghApi("GET", "/repos/" + m[1] + "/" + m[2], token);
+          if (!r.ok) throw ghErr(r);
           try {
             localStorage.setItem(GH_TOKEN_KEY, token);
-            localStorage.setItem(GH_REPO_KEY, rep.value.trim());
+            localStorage.setItem(GH_REPO_KEY, repo);
             localStorage.setItem(GH_BRANCH_KEY, br.value.trim() || "main");
           } catch(e){}
-          syncDraftBase();
-          status.textContent = "✅ Сохранено! Сайт обновится через 1–2 минуты (открывайте с Ctrl+F5).";
-          toast("☁️ Изменения сохранены на сайте!");
+          toast("✅ Автосохранение включено");
+          buildEditor();
+          autosaveNow();
         } catch(err){
-          status.textContent = "❌ " + err.message;
+          setSaveState("ошибка доступа", "err");
+          toast("❌ " + err.message);
+          connect.disabled = false; connect.textContent = "Подключить автосохранение";
         }
-        save.disabled = false;
-        save.textContent = oldText;
       });
-      b.appendChild(save);
-
-      const forget = mk("button", "ed-btn danger", "Забыть токен в этом браузере");
-      forget.style.cssText += "width:100%;justify-content:center;margin-top:8px;";
-      forget.addEventListener("click", () => {
-        try { localStorage.removeItem(GH_TOKEN_KEY); } catch(e){}
-        tok.value = "";
-        toast("Токен удалён из браузера");
-      });
-      b.appendChild(forget);
-    }));
+      b.appendChild(connect);
+    }, true));
 
     /* Фото */
     body.appendChild(edSection("🖼", "Фото (первый экран)", b => {
@@ -1861,7 +1946,18 @@ if (EDIT_MODE) {
     setTimeout(() => input.focus(), 80);
   }
   function closePw(){ const o = pwEl("pw-overlay"); if (o) o.classList.remove("show"); }
-  function openPanel(){ document.body.classList.add("editor-open"); buildEditor(); }
+  document.addEventListener("keydown", e => {
+    if ((e.ctrlKey || e.metaKey) && String(e.key).toLowerCase() === "s"){
+      e.preventDefault();
+      if (document.body.classList.contains("editor-open")) autosaveNow();
+    }
+  });
+  function openPanel(){
+    document.body.classList.add("editor-open");
+    buildEditor();
+    const cfg = ghCfg();
+    setSaveState(cfg.token ? "автосохранение включено" : "не подключено", cfg.token ? "ok" : "warn");
+  }
   function requestEditor(){
     try { isUnlocked() ? openPanel() : openPwModal(); }
     catch(err){ console.error("editor:", err); try { openPwModal(); } catch(e2){ console.error(e2); } }
