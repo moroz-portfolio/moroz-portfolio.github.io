@@ -39,8 +39,8 @@
   --text: #f2ede4;
   --text-muted: #a79e91;
 
-  --radius: 6px;
-  --radius-sm: 4px;
+  --radius: 18px;
+  --radius-sm: 12px;
   --container: 1080px;
   --font: "Golos Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --font-display: "Golos Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -110,7 +110,7 @@ section{padding:88px 0;position:relative}
 /* ---------- Кнопки ---------- */
 .btn{
   display:inline-flex;align-items:center;gap:8px;
-  padding:12px 22px;border-radius:var(--radius-sm);font-weight:700;font-size:calc(15px * var(--fs));
+  padding:13px 26px;border-radius:99px;font-weight:700;font-size:calc(15px * var(--fs));
   cursor:pointer;border:none;transition:background .2s, border-color .2s, color .2s;font-family:var(--font);
 }
 .btn-primary{background:var(--accent);color:#171310}
@@ -257,21 +257,10 @@ body.edit .photo-mono .mono-hint{display:block}
 .hidden{display:none !important}
 
 /* ---------- О себе ---------- */
-.about-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:44px;align-items:start}
+.about-grid{display:grid;grid-template-columns:1fr}
+.about-text{max-width:70ch}
 .about-text p{color:var(--text-muted);font-size:calc(16.2px * var(--fs));margin-bottom:16px}
 .about-text p strong{color:var(--text)}
-.about-card{
-  background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
-  padding:30px;position:sticky;top:96px;
-}
-.about-card h3{font-size:calc(17px * var(--fs));font-weight:800;margin-bottom:18px}
-.skill-row{margin-bottom:16px}
-.skill-row:last-child{margin-bottom:0}
-.skill-top{display:flex;justify-content:space-between;font-size:calc(13.8px * var(--fs));font-weight:700;margin-bottom:7px}
-.skill-top span:last-child{color:var(--text-muted);font-weight:600}
-.skill-bar{height:7px;border-radius:99px;background:var(--bg-soft);overflow:hidden}
-html[data-theme="dark"] .skill-bar{background:rgba(255,255,255,.07)}
-.skill-fill{height:100%;border-radius:99px;background:var(--accent-grad);width:0;transition:width 1.1s cubic-bezier(.22,1,.36,1)}
 
 /* ---------- Контакты ---------- */
 .contact{
@@ -283,13 +272,13 @@ html[data-theme="dark"] .skill-bar{background:rgba(255,255,255,.07)}
 .contact-cta{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:26px}
 .contact-direct{display:flex;flex-wrap:wrap;gap:10px}
 .contact-chip{
-  display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border-radius:3px;
-  border:1px solid var(--border);font-size:calc(14px * var(--fs));font-weight:600;color:var(--text-muted);
-  transition:.2s;
+  display:inline-flex;align-items:center;gap:9px;height:48px;padding:0 20px;border-radius:99px;
+  background:var(--bg-soft);border:1px solid var(--border);font-size:calc(14.5px * var(--fs));font-weight:700;
+  color:var(--text);transition:.2s;
 }
+html[data-theme="dark"] .contact-chip{background:rgba(255,255,255,.04)}
 .contact-chip:hover{border-color:var(--accent);color:var(--accent)}
-.contact-chip svg{color:var(--text-muted);flex:none}
-.contact-chip:hover svg{color:var(--accent)}
+.contact-chip svg{color:var(--accent);flex:none}
 
 /* ---------- Футер ---------- */
 .footer{border-top:1px solid var(--border);padding:28px 0;margin-top:20px}
@@ -478,7 +467,6 @@ html[data-theme="dark"] .pw-note{background:rgba(255,255,255,.03)}
   .stats{grid-template-columns:repeat(2,1fr)}
   .services{grid-template-columns:1fr}
   .about-grid{grid-template-columns:1fr}
-  .about-card{position:static}
   .works{grid-template-columns:1fr}
   .nav{
     position:fixed;top:68px;left:0;right:0;flex-direction:column;align-items:stretch;
@@ -581,10 +569,6 @@ html[data-theme="dark"] .pw-note{background:rgba(255,255,255,.03)}
       </div>
       <div class="about-grid">
         <div class="about-text reveal" id="about-text"></div>
-        <div class="about-card reveal">
-          <h3>Ключевые навыки</h3>
-          <div id="skills"></div>
-        </div>
       </div>
     </div>
   </section>
@@ -1177,12 +1161,6 @@ function applyFilter(){
 function renderAbout(){
   $("#about-title").textContent = CONFIG.about.title || "";
   $("#about-text").innerHTML = (CONFIG.about.paragraphs || []).map(p => `<p>${bold(p)}</p>`).join("");
-  $("#skills").innerHTML = (CONFIG.about.skills || []).map(s => `
-    <div class="skill-row">
-      <div class="skill-top"><span>${esc(s.name)}</span><span>${esc(s.level ?? "")}${s.level ? "%" : ""}</span></div>
-      <div class="skill-bar"><div class="skill-fill" data-level="${esc(s.level ?? 0)}"></div></div>
-    </div>`).join("");
-  $$("#skills .skill-fill").forEach(f => f.style.width = f.dataset.level + "%");
 }
 
 function renderContact(){
@@ -1663,15 +1641,6 @@ if (EDIT_MODE) {
           box.appendChild(t);
         },
         "Добавить абзац", () => ""));
-      b.appendChild(fieldWrap("Навыки", null));
-      b.appendChild(listEditor(() => CONFIG.about.skills,
-        (box, s) => {
-          const r1 = mk("div", "ed-row");
-          r1.appendChild(fieldWrap("Навык", textInput(() => s.name, v => s.name = v)));
-          r1.appendChild(fieldWrap("Уровень, %", textInput(() => s.level, v => s.level = v, { type: "number" })));
-          box.appendChild(r1);
-        },
-        "Добавить навык", () => ({ name: "Новый навык", level: 80 })));
     }));
 
     /* Контакты */
