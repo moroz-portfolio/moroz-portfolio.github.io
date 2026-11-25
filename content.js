@@ -165,6 +165,11 @@ window.SITE_CONTENT = {
         "color": "#b8724f"
       },
       {
+        "id": "site",
+        "label": "Сайты и лендинги",
+        "color": "#6f8f8a"
+      },
+      {
         "id": "video",
         "label": "Сценарии",
         "color": "#8d8578"
@@ -274,32 +279,32 @@ window.SITE_CONTENT = {
       {
         "type": "article",
         "title": "Превращаем квартиру в неприступную крепость: как выбрать дверь и сигнализацию",
-        "url": "https://www.novostroy.su/articles/journal/prevrashchaem-kvartiru-v-nepristupnuyu-krepost-kak-vybrat-dver-i-signalizatsiyu/"
+        "url": "https://www.novostroy.ru/articles/journal/prevrashchaem-kvartiru-v-nepristupnuyu-krepost-kak-vybrat-dver-i-signalizatsiyu/"
       },
       {
         "type": "article",
         "title": "Экономим во время ремонта — от каких расходов можно отказаться",
-        "url": "https://www.novostroy.su/articles/journal/ekonomim-vo-vremya-remonta-ot-kakikh-raskhodov-mozhno-legko-otkazatsya/"
+        "url": "https://www.novostroy.ru/articles/journal/ekonomim-vo-vremya-remonta-ot-kakikh-raskhodov-mozhno-legko-otkazatsya/"
       },
       {
         "type": "article",
         "title": "Почему в новых домах отключают горячую воду и как это решают застройщики",
-        "url": "https://www.novostroy.su/articles/urban/planovoe-stradanie-pochemu-v-novykh-domakh-otklyuchayut-goryachuyu-vodu-i-kak-etu-problemu-reshayut-zastroyshchiki/"
+        "url": "https://www.novostroy.ru/articles/urban/planovoe-stradanie-pochemu-v-novykh-domakh-otklyuchayut-goryachuyu-vodu-i-kak-etu-problemu-reshayut-zastroyshchiki/"
       },
       {
         "type": "article",
         "title": "Почему раздельный санузел — пережиток прошлого",
-        "url": "https://www.novostroy.su/articles/journal/pochemu-razdelnyy-sanuzel-eto-perezhitok-proshlogo-kotoromu-net-mesta-v-sovremennom-mire/"
+        "url": "https://www.novostroy.ru/articles/journal/pochemu-razdelnyy-sanuzel-eto-perezhitok-proshlogo-kotoromu-net-mesta-v-sovremennom-mire/"
       },
       {
         "type": "article",
         "title": "Вредят ли здоровью ЛЭП, проходящие рядом с домом",
-        "url": "https://www.novostroy.su/articles/journal/vredyat-li-zdorovyu-lep-prokhodyashchie-ryadom-s-domom/"
+        "url": "https://www.novostroy.ru/articles/journal/vredyat-li-zdorovyu-lep-prokhodyashchie-ryadom-s-domom/"
       },
       {
         "type": "article",
         "title": "Документы при покупке квартиры: как подготовиться к любой сделке",
-        "url": "https://www.novostroy.su/articles/library/dokumenty-pri-pokupke-kvartiry-kak-podgotovitsya-k-lyuboy-sdelke-kakoy-by-slozhnoy-ona-ni-byla/"
+        "url": "https://www.novostroy.ru/articles/library/dokumenty-pri-pokupke-kvartiry-kak-podgotovitsya-k-lyuboy-sdelke-kakoy-by-slozhnoy-ona-ni-byla/"
       },
       {
         "type": "case",
@@ -315,6 +320,36 @@ window.SITE_CONTENT = {
         "type": "case",
         "title": "Кейс: покупатели недвижимости на 1,453 млрд ₽ для загородного застройщика",
         "url": "https://vc.ru/cosmicrealty/1463793-keis-kak-my-privlekli-pokupatelei-nedvizhimosti-na-1453-mlrd-dlya-zagorodnogo-zastroishika-v-nizhegorodskoi-oblasti"
+      },
+      {
+        "type": "case",
+        "title": "В ТОП выдачи Яндекса почти с нуля: как мы прокачали сайт по монтажу оборудования в Казахстане",
+        "url": "https://molinos.ru/portfolio/internet_marketing/cases/seo/v-top-vydachi-yandeksa-pochti-s-nulya-kak-my-prokachali-sayt-po-montazhu-oborudovaniya-v-kazahstane"
+      },
+      {
+        "type": "case",
+        "title": "Как победить сезонность: продвижение легендарного пятизвездочного отеля в Петербурге",
+        "url": "https://molinos.ru/portfolio/internet_marketing/cases/media/kak-pobedit-sezonnost-prodvizhenie-legendarnogo-pyatizvezdochnogo-otelya-v-peterburge"
+      },
+      {
+        "type": "case",
+        "title": "Как работает brandformance: комплексное продвижение бренда KERRANOVA",
+        "url": "https://molinos.ru/portfolio/internet_marketing/cases/media/kak-rabotaet-brandformance-kompleksnoe-prodvizhenie-brenda-kerranova"
+      },
+      {
+        "type": "site",
+        "title": "Molinos e-commerce",
+        "url": "https://ecom.molinos.ru"
+      },
+      {
+        "type": "site",
+        "title": "Хвойный квартал",
+        "url": "https://hvoynykvartal.ru"
+      },
+      {
+        "type": "site",
+        "title": "TERRA VITAE",
+        "url": "https://terravitae.ru"
       },
       {
         "type": "video",
